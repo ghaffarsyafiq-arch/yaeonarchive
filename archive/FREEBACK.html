@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Syafiq Ghaffar | Personal Feedback Journal</title>
+    <title>Freeback Syafiq | Wine Mesh</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap');
@@ -25,6 +25,7 @@
             overflow-x: hidden;
         }
 
+        /* --- Background Mesh Animation --- */
         .mesh-bg {
             position: fixed;
             top: 0;
@@ -42,96 +43,34 @@
             background-attachment: fixed;
         }
 
-        #notebook-cover {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--wine-dark);
-            background-image: 
-                repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px),
-                radial-gradient(circle at center, var(--wine-medium), var(--wine-dark));
-            transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.8s ease;
-        }
-
-        .cover-texture {
-            position: absolute;
-            inset: 0;
-            opacity: 0.25;
-            background-image: url("https://www.transparenttextures.com/patterns/leather.png");
-            pointer-events: none;
-        }
-
-        .notebook-spine {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            background: linear-gradient(to right, #000, #330000, #000);
-            border-right: 3px solid rgba(255,255,255,0.05);
-        }
-
-        .cover-text-container {
-            transform: rotate(-3deg);
-            text-align: center;
-            padding: 3rem;
-            border: 8px double rgba(255,255,255,0.05);
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(8px);
-            box-shadow: 30px 30px 80px rgba(0,0,0,0.7);
-            max-width: 90%;
-            width: 500px;
-        }
-
-        .cover-title {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 900;
-            font-size: clamp(2.2rem, 8vw, 4.5rem);
-            line-height: 0.9;
-            text-transform: uppercase;
-            letter-spacing: -3px;
-            color: #fff;
-            text-shadow: 6px 6px 0px var(--wine-light);
-        }
-
-        .identity-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px;
-            width: 80%;
-            margin: 2rem 0;
-            text-align: center;
-            outline: none;
-        }
-
+        /* --- Main UI Styles --- */
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
         }
 
-        textarea {
+        input, textarea {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: #fff;
-            resize: none;
             width: 100%;
             padding: 16px;
             border-radius: 16px;
             outline: none;
+            transition: border-color 0.3s ease;
         }
-
-        .hidden-cover {
-            transform: translateX(-110%) rotateY(-25deg);
-            opacity: 0;
-            pointer-events: none;
+        
+        input:focus, textarea:focus {
+            border-color: rgba(255,255,255,0.3);
         }
 
         .loader {
@@ -148,6 +87,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* --- Private Vault / Admin Styles --- */
         #private-modal {
             display: none;
             position: fixed;
@@ -163,178 +103,221 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            opacity: 0.05;
+            opacity: 0.1;
             cursor: pointer;
             z-index: 50;
+            transition: opacity 0.3s;
+        }
+        
+        .secret-access-btn:hover {
+            opacity: 1;
+        }
+
+        /* Animasi Masuk */
+        .animate-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Notebook Cover -->
-    <div id="notebook-cover">
-        <div class="cover-texture"></div>
-        <div class="notebook-spine"></div>
-        <div class="cover-text-container">
-            <h1 class="cover-title">10 kesalahan/</h1>
-            <h1 class="cover-title text-red-600">10 Kebaikan?</h1>
-            
-            <div class="mt-8">
-                <p class="text-[10px] tracking-widest opacity-40 uppercase mb-1">Identitas Pemilik</p>
-                <input type="text" id="user-name" class="identity-input" placeholder="Nama / Inisial / Anonim">
-            </div>
-
-            <button onclick="openNotebook()" class="bg-red-800 hover:bg-red-700 px-8 py-3 rounded-full font-bold uppercase text-xs tracking-widest border border-white/10 transition-all">Buka Jurnal</button>
-            
-            <p class="mt-8 font-medium tracking-[0.5em] text-[10px] opacity-40 uppercase">SYAFIQ GHAFFAR | Unsoed Portal</p>
-        </div>
-    </div>
-
+    <!-- Background -->
     <div class="mesh-bg"></div>
     
+    <!-- Secret Admin Button -->
     <div class="secret-access-btn" onclick="askPasscode()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
 
-    <!-- Private Modal -->
+    <!-- Private Admin Vault Modal -->
     <div id="private-modal">
         <div class="max-w-4xl mx-auto">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-bold">Arsip Rahasia Syafiq</h2>
-                <button onclick="closeVault()" class="bg-white/10 px-4 py-2 rounded-lg">Tutup</button>
+            <div class="flex justify-between items-center mb-10 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Admin Vault</h2>
+                    <p class="text-xs text-red-400 tracking-widest uppercase mt-1">Restricted Access Area</p>
+                </div>
+                <button onclick="closeVault()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition">Tutup</button>
             </div>
-            <div id="vault-content" class="space-y-6"></div>
+            
+            <div class="grid gap-6">
+                <!-- Link ke Inbox Formspree -->
+                <a href="https://formspree.io/forms" target="_blank" class="block p-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 transition group">
+                    <h3 class="text-yellow-400 font-bold text-lg mb-2 flex items-center gap-2">
+                        📂 Formspree Inbox
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </h3>
+                    <p class="text-sm text-gray-400">Klik di sini untuk melihat semua pesan yang masuk via Email.</p>
+                </a>
+
+                <!-- Riwayat Lokal Browser -->
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4">Riwayat Lokal (Browser Ini)</h3>
+                    <div id="vault-content" class="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Inside UI -->
-    <main id="main-content" class="opacity-0 transition-opacity duration-1000 pt-10">
-        <header class="text-center py-12 px-4">
-            <h2 class="text-red-500 font-bold tracking-widest text-sm uppercase mb-2">Personal Website</h2>
-            <h1 class="text-4xl md:text-6xl font-bold mb-4 tracking-tighter" id="display-name">Syafiq Ghaffar</h1>
-            <div class="text-red-200/50 italic text-lg max-w-2xl mx-auto border-t border-white/5 pt-4">
-                "Jujur pada diri sendiri adalah langkah pertama menuju kebaikan."
+    <!-- Main Content -->
+    <main id="main-content" class="pt-10 min-h-screen">
+        <header class="text-center py-10 px-4 animate-slide-up">
+            <h2 class="text-red-500 font-bold tracking-widest text-sm uppercase mb-2">Portal Feedback</h2>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tighter">Freeback Syafiq</h1>
+            
+            <!-- Identitas Input Langsung Disini -->
+            <div class="max-w-md mx-auto relative group">
+                <input type="text" id="user-name" class="text-center border-b-2 border-transparent focus:border-red-500 transition-colors bg-white/5 backdrop-blur-sm" placeholder="Ketik Namamu / Identitas (Opsional)...">
+                <div class="absolute inset-x-0 bottom-0 h-[1px] bg-white/10"></div>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto px-6 pb-24 max-w-6xl">
-            <section class="glass-card p-8 flex flex-col shadow-2xl">
-                <h3 class="text-red-300 font-bold tracking-widest uppercase text-sm mb-4">💡 Saran & Perbaikan</h3>
-                <textarea id="saran" rows="8" placeholder="Evaluasi untuk dirimu..."></textarea>
+        <form id="feedback-form" onsubmit="handleEmailSubmission(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto px-6 pb-24 max-w-6xl animate-slide-up" style="animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards;">
+            
+            <!-- Box 1: Kesan & Pesan -->
+            <section class="glass-card p-8 flex flex-col shadow-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">✨</div>
+                <h3 class="text-red-300 font-bold tracking-widest uppercase text-xs mb-4">✨ Kesan & Pesan</h3>
+                <textarea id="pesanKesan" name="kesan_pesan" rows="6" placeholder="Apa yang kamu rasakan atau ingin sampaikan?" required></textarea>
                 <div class="flex flex-wrap gap-2 mt-4 bg-black/20 p-2 rounded-xl">
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('saran', '💡')">💡</span>
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('saran', '🌱')">🌱</span>
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('saran', '🎯')">🎯</span>
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('saran', '🧠')">🧠</span>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('pesanKesan', '😊')">😊</button>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('pesanKesan', '💖')">💖</button>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('pesanKesan', '🌟')">🌟</button>
                 </div>
             </section>
 
-            <section class="glass-card p-8 flex flex-col shadow-2xl">
-                <h3 class="text-red-300 font-bold tracking-widest uppercase text-sm mb-4">✨ Pesan & Kesan</h3>
-                <textarea id="pesanKesan" rows="8" placeholder="Apa yang kamu rasakan hari ini?"></textarea>
+            <!-- Box 2: Saran -->
+            <section class="glass-card p-8 flex flex-col shadow-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">💡</div>
+                <h3 class="text-red-300 font-bold tracking-widest uppercase text-xs mb-4">💡 Saran / Masukan</h3>
+                <textarea id="saran" name="saran" rows="6" placeholder="Ada kritik atau saran membangun?"></textarea>
                 <div class="flex flex-wrap gap-2 mt-4 bg-black/20 p-2 rounded-xl">
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('pesanKesan', '✨')">✨</span>
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('pesanKesan', '💖')">💖</span>
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('pesanKesan', '🌟')">🌟</span>
-                    <span class="cursor-pointer text-xl hover:scale-125 transition-transform" onclick="addEmoji('pesanKesan', '🦋')">🦋</span>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('saran', '🤔')">🤔</button>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('saran', '🛠️')">🛠️</button>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('saran', '📈')">📈</button>
                 </div>
             </section>
 
-            <section class="glass-card p-8 flex flex-col md:col-span-2 shadow-2xl">
-                <h3 class="text-red-300 font-bold tracking-widest uppercase text-sm mb-4">🔥 Motivasi & Quotes</h3>
-                <textarea id="motivasi" rows="4" placeholder="Mantra penyemangat..."></textarea>
-                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Email Button -->
-                    <button id="submit-btn" onclick="handleEmailSubmission()" class="bg-red-900 hover:bg-red-800 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 border border-white/5 flex items-center justify-center gap-3">
+            <!-- Box 3: Motivasi & Quotes (Full Width) -->
+            <section class="glass-card p-8 flex flex-col md:col-span-2 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 transition text-6xl">🔥</div>
+                <h3 class="text-red-300 font-bold tracking-widest uppercase text-xs mb-4">🔥 Motivasi & Quotes</h3>
+                <textarea id="motivasi" name="motivasi" rows="4" placeholder="Kirimkan satu kutipan atau motivasi untuk hari ini..."></textarea>
+                <div class="flex flex-wrap gap-2 mt-4 bg-black/20 p-2 rounded-xl w-fit">
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('motivasi', '🔥')">🔥</button>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('motivasi', '💪')">💪</button>
+                    <button type="button" class="hover:scale-125 transition-transform p-1" onclick="addEmoji('motivasi', '🚀')">🚀</button>
+                </div>
+                
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/5 pt-6">
+                    <!-- Email Button (Formspree) -->
+                    <button type="submit" id="submit-btn" class="bg-red-900 hover:bg-red-800 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 border border-white/5 flex items-center justify-center gap-3 shadow-lg group">
                         <div id="loader-email" class="loader hidden"></div>
-                        <svg id="icon-email" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                        <span>Kirim ke Email (Background)</span>
+                        <svg id="icon-email" class="w-5 h-5 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        <span>Kirim ke Email (Formspree)</span>
                     </button>
+                    
                     <!-- WhatsApp Button -->
-                    <button onclick="handleWASubmission()" class="bg-green-700 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 border border-white/5 flex items-center justify-center gap-3">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 0 5.414 0 12.05c0 2.123.553 4.197 1.603 6.034L0 24l6.135-1.608a11.745 11.745 0 005.91 1.583h.005c6.637 0 12.05-5.414 12.05-12.05 0-3.213-1.25-6.233-3.518-8.502z"/></svg>
-                        <span>Kirim ke WhatsApp Instan</span>
+                    <button type="button" onclick="handleWASubmission()" class="bg-green-700 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 border border-white/5 flex items-center justify-center gap-3 shadow-lg group">
+                        <svg class="w-5 h-5 group-hover:-translate-y-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 0 5.414 0 12.05c0 2.123.553 4.197 1.603 6.034L0 24l6.135-1.608a11.745 11.745 0 005.91 1.583h.005c6.637 0 12.05-5.414 12.05-12.05 0-3.213-1.25-6.233-3.518-8.502z"/></svg>
+                        <span>Kirim WhatsApp</span>
                     </button>
                 </div>
+                <p id="form-status" class="text-center text-xs mt-4 text-gray-400 h-4"></p>
             </section>
-        </div>
+        </form>
 
-        <footer class="text-center py-12 opacity-20 text-[10px] tracking-[0.5em] uppercase">
-            Syafiq Ghaffar Journal &copy; 2025
+        <footer class="text-center py-12 opacity-30 text-[10px] tracking-[0.5em] uppercase hover:opacity-100 transition-opacity">
+            Syafiq Ghaffar &copy; 2025
         </footer>
     </main>
 
     <script>
-        const OWNER_EMAIL = "Syafiq.ghaffar@mhs.unsoed.ac.id";
-        const OWNER_WA = "6281280702747"; // Format internasional benar tanpa 0 di depan 8
-        const PASSCODE = "1234";
+        // --- KONFIGURASI ---
+        const FORMSPREE_ENDPOINT = "https://formspree.io/f/xvzpywek"; // ID Formspree Anda
+        const OWNER_WA = "6281280702747"; // Nomor WhatsApp Tujuan
+        const ADMIN_PASSWORD = "yaeononly"; // Password Admin Anda
 
-        function openNotebook() {
-            const nameInput = document.getElementById('user-name').value;
-            if (nameInput.trim() !== "") {
-                document.getElementById('display-name').textContent = nameInput;
-            }
-            document.getElementById('notebook-cover').classList.add('hidden-cover');
-            document.getElementById('main-content').classList.replace('opacity-0', 'opacity-100');
-        }
-
+        // --- Logic Emoji ---
         function addEmoji(id, emoji) {
             const el = document.getElementById(id);
             el.value += emoji;
             el.focus();
         }
 
+        // --- Data Helper ---
         function getFeedbackData() {
-            const name = document.getElementById('display-name').textContent;
+            const nameInput = document.getElementById('user-name').value;
+            const name = nameInput.trim() || "Anonim";
+            
             return {
                 name: name,
+                pesanKesan: document.getElementById('pesanKesan').value,
                 saran: document.getElementById('saran').value,
-                kesan: document.getElementById('pesanKesan').value,
                 motivasi: document.getElementById('motivasi').value,
                 date: new Date().toLocaleString('id-ID')
             };
         }
 
         function saveToLocal(data) {
-            const history = JSON.parse(localStorage.getItem('syafiq_history') || '[]');
+            const history = JSON.parse(localStorage.getItem('wine_message_history') || '[]');
             history.unshift(data);
-            localStorage.setItem('syafiq_history', JSON.stringify(history.slice(0, 20)));
+            localStorage.setItem('wine_message_history', JSON.stringify(history.slice(0, 20))); // Simpan 20 terakhir
         }
 
-        // FUNGSI EMAIL (Background - FormSubmit)
-        async function handleEmailSubmission() {
+        // --- FUNGSI KIRIM EMAIL (FORMSPREE) ---
+        async function handleEmailSubmission(event) {
+            event.preventDefault();
             const data = getFeedbackData();
-            if(!data.saran && !data.kesan && !data.motivasi) return alert("Isi feedback dulu!");
+            
+            // Validasi: Minimal Pesan Kesan harus diisi
+            if(!data.pesanKesan) {
+                document.getElementById('form-status').textContent = "⚠️ Minimal isi 'Kesan & Pesan' dulu ya!";
+                return;
+            }
 
             const btn = document.getElementById('submit-btn');
             const loader = document.getElementById('loader-email');
             const icon = document.getElementById('icon-email');
+            const status = document.getElementById('form-status');
             
             btn.disabled = true;
             loader.classList.remove('hidden');
             icon.classList.add('hidden');
+            status.textContent = "Mengirim feedback ke Syafiq...";
+
+            saveToLocal(data);
 
             try {
-                saveToLocal(data);
-                const response = await fetch(`https://formsubmit.co/ajax/${OWNER_EMAIL}`, {
+                // Mapping data sesuai request: Kesan/pesan, Saran, Motivasi/quotes
+                const response = await fetch(FORMSPREE_ENDPOINT, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
                         Pengirim: data.name,
-                        Saran: data.saran || "-",
-                        Kesan: data.kesan || "-",
-                        Motivasi: data.motivasi || "-",
-                        _subject: `Feedback Baru dari ${data.name}`
+                        "Kesan dan Pesan": data.pesanKesan,
+                        "Saran": data.saran || "-",
+                        "Motivasi dan Quotes": data.motivasi || "-"
                     })
                 });
 
                 if (response.ok) {
-                    alert("Berhasil Terkirim ke Email! \nCatatan: Jika ini pertama kali, cek inbox emailmu untuk klik 'ACTIVATE' agar feedback selanjutnya masuk otomatis.");
+                    status.textContent = "🍷 Feedback berhasil terkirim! Terima kasih.";
+                    status.className = "text-center text-xs mt-4 text-green-400 h-4";
+                    document.getElementById('feedback-form').reset();
                 } else {
-                    throw new Error();
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Gagal mengirim");
                 }
             } catch (e) {
-                alert("Gagal kirim email. Pastikan koneksi aman.");
+                status.textContent = "❌ Gagal terkirim. Cek koneksi atau coba WhatsApp.";
+                status.className = "text-center text-xs mt-4 text-red-400 h-4";
             } finally {
                 btn.disabled = false;
                 loader.classList.add('hidden');
@@ -342,47 +325,59 @@
             }
         }
 
-        // FUNGSI WHATSAPP (Instant Link)
+        // --- FUNGSI WHATSAPP ---
         function handleWASubmission() {
             const data = getFeedbackData();
-            if(!data.saran && !data.kesan && !data.motivasi) return alert("Isi feedback dulu!");
+            if(!data.pesanKesan) return alert("Isi Kesan & Pesan dulu!");
 
             saveToLocal(data);
 
-            const text = `*FEEDBACK SYAFIQ GHAFFAR PORTAL*\n` +
+            const text = `*FREEBACK SYAFIQ*\n` +
                          `---------------------------------\n` +
-                         `👤 *Nama:* ${data.name}\n` +
+                         `👤 *Dari:* ${data.name}\n` +
                          `📅 *Waktu:* ${data.date}\n\n` +
-                         `💡 *Saran & Perbaikan:*\n${data.saran || '-'}\n\n` +
-                         `✨ *Pesan & Kesan:*\n${data.kesan || '-'}\n\n` +
-                         `🔥 *Motivasi:*\n${data.motivasi || '-'}\n` +
+                         `✨ *Kesan & Pesan:*\n${data.pesanKesan}\n\n` +
+                         `💡 *Saran:*\n${data.saran || '-'}\n\n` +
+                         `🔥 *Motivasi & Quotes:*\n${data.motivasi || '-'}\n` +
                          `---------------------------------`;
 
             const waUrl = `https://wa.me/${OWNER_WA}?text=${encodeURIComponent(text)}`;
             window.open(waUrl, '_blank');
         }
 
-        // VAULT LOGIC
+        // --- VAULT / ADMIN LOGIC ---
         function askPasscode() {
-            if (prompt("Passcode:") === PASSCODE) {
-                const history = JSON.parse(localStorage.getItem('syafiq_history') || '[]');
-                const content = document.getElementById('vault-content');
+            const input = prompt("Masukkan Kunci Rahasia:");
+            if (input === ADMIN_PASSWORD) {
+                renderVaultContent();
                 document.getElementById('private-modal').style.display = 'block';
-                
-                content.innerHTML = history.map(item => `
-                    <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
-                        <div class="flex justify-between text-[10px] text-red-500 font-bold mb-3">
-                            <span>OLEH: ${item.name}</span>
-                            <span>${item.date}</span>
-                        </div>
-                        <div class="space-y-2 text-sm">
-                            <p><span class="opacity-30">SARAN:</span> ${item.saran || '-'}</p>
-                            <p><span class="opacity-30">KESAN:</span> ${item.kesan || '-'}</p>
-                            <p><span class="opacity-30">MOTIVASI:</span> ${item.motivasi || '-'}</p>
-                        </div>
-                    </div>
-                `).join('') || '<p class="text-center opacity-30">Belum ada arsip.</p>';
+            } else if (input !== null) {
+                alert("Kunci Salah.");
             }
+        }
+
+        function renderVaultContent() {
+            const history = JSON.parse(localStorage.getItem('wine_message_history') || '[]');
+            const content = document.getElementById('vault-content');
+            
+            if (history.length === 0) {
+                content.innerHTML = '<p class="text-center opacity-30 col-span-2 py-10">Belum ada jejak pesan di browser ini.</p>';
+                return;
+            }
+
+            content.innerHTML = history.map(item => `
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10 hover:bg-white/10 transition">
+                    <div class="flex justify-between text-[10px] text-red-400 font-bold mb-3 uppercase tracking-widest">
+                        <span>${item.name}</span>
+                        <span>${item.date.split(',')[0]}</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <p><span class="opacity-50 text-[10px]">KESAN:</span> ${item.pesanKesan}</p>
+                        ${item.saran ? `<p><span class="opacity-50 text-[10px]">SARAN:</span> ${item.saran}</p>` : ''}
+                        ${item.motivasi ? `<p><span class="opacity-50 text-[10px]">MOTIVASI:</span> ${item.motivasi}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
         }
 
         function closeVault() { document.getElementById('private-modal').style.display = 'none'; }
