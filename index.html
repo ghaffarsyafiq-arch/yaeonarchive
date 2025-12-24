@@ -25,8 +25,12 @@
             theme: {
                 extend: {
                     colors: {
-                        slate: { 850: '#1e293b', 900: '#0f172a' },
-                        primary: { DEFAULT: '#38bdf8', hover: '#0ea5e9' }
+                        // Custom Wine Palette
+                        wine: {
+                            900: '#2a0a12',
+                            950: '#1a0508',
+                        },
+                        primary: { DEFAULT: '#fb7185', hover: '#f43f5e' } // Rose colors
                     },
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
@@ -46,41 +50,50 @@
     </script>
     <style>
         body {
-            background-color: #020617;
-            color: #f8fafc;
+            background-color: #0f0205; /* Base Dark Color */
+            color: #ffe4e6; /* Rose-100 text for better contrast */
+            /* Gradient Mesh Effect - Red Wine Theme */
             background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(136, 19, 55, 0.4) 0px, transparent 50%),    /* Deep Rose */
+                radial-gradient(at 100% 0%, rgba(88, 28, 135, 0.25) 0px, transparent 50%),  /* Deep Purple for depth */
+                radial-gradient(at 100% 100%, rgba(159, 18, 57, 0.3) 0px, transparent 50%), /* Rose 800 */
+                radial-gradient(at 0% 100%, rgba(76, 5, 25, 0.5) 0px, transparent 50%),     /* Dark Burgundy */
+                radial-gradient(at 50% 50%, rgba(225, 29, 72, 0.1) 0px, transparent 50%);   /* Center Highlight */
             background-attachment: fixed;
             min-height: 100vh;
         }
+        
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(20, 5, 10, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
+        
         .glass-card {
-            background: rgba(30, 41, 59, 0.4);
+            background: rgba(40, 10, 15, 0.3); /* Warmer tint */
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 200, 200, 0.05);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         .glass-card:hover {
             transform: translateY(-5px) scale(1.01);
-            background: rgba(30, 41, 59, 0.7);
-            border-color: rgba(56, 189, 248, 0.5);
-            box-shadow: 0 20px 40px -10px rgba(56, 189, 248, 0.15);
+            background: rgba(60, 10, 20, 0.5);
+            border-color: rgba(251, 113, 133, 0.4); /* Rose-400 */
+            box-shadow: 0 20px 40px -10px rgba(225, 29, 72, 0.2); /* Red shadow */
         }
+        
         .text-gradient {
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            background: linear-gradient(135deg, #fb7185 0%, #c084fc 100%); /* Rose to Purple */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* Loading Spinner */
+        
+        /* Loading Spinner updated to Rose */
         .loader {
             border: 3px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #38bdf8;
+            border-left-color: #fb7185;
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -90,33 +103,35 @@
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-track { background: #0f0205; }
+        ::-webkit-scrollbar-thumb { background: #881337; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #be123c; }
     </style>
 </head>
-<body class="flex flex-col antialiased selection:bg-sky-500/30 selection:text-sky-200">
+<body class="flex flex-col antialiased selection:bg-rose-500/30 selection:text-rose-200">
 
     <!-- Header / Navbar -->
-    <header class="fixed top-0 z-50 w-full border-b border-white/5 bg-slate-900/80 backdrop-blur-xl transition-all duration-300">
+    <header class="fixed top-0 z-50 w-full border-b border-white/5 bg-wine-950/80 backdrop-blur-xl transition-all duration-300">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
             <a href="#" class="flex items-center gap-3 group">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:shadow-sky-500/20 transition-all">Y</div>
-                <span class="font-bold tracking-tight text-slate-200 group-hover:text-white transition-colors">Yaeon<span class="text-slate-500 font-normal">.archive</span></span>
+                <!-- Icon updated to Rose/Purple gradient -->
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:shadow-rose-500/20 transition-all">Y</div>
+                <span class="font-bold tracking-tight text-rose-100 group-hover:text-white transition-colors">Yaeon<span class="text-rose-500/50 font-normal">.archive</span></span>
             </a>
             
             <div class="flex items-center gap-4">
-                <a href="https://github.com/ghaffarsyafiq-arch/yaeonarchive" target="_blank" class="hidden md:flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
+                <a href="https://github.com/ghaffarsyafiq-arch/yaeonarchive" target="_blank" class="hidden md:flex items-center gap-2 text-sm font-medium text-rose-200/70 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                     GitHub
                 </a>
                 <span class="w-px h-6 bg-white/10 hidden md:block"></span>
-                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <!-- Updated Status Badge to Amber (Gold) to match Wine -->
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                     </span>
-                    <span class="text-xs font-medium text-emerald-400">Open to Work</span>
+                    <span class="text-xs font-medium text-amber-400">Open to Work</span>
                 </div>
             </div>
         </div>
@@ -126,24 +141,25 @@
         
         <!-- Hero & Profile Section -->
         <section class="max-w-4xl mx-auto mb-24 relative">
-            <div class="absolute -top-20 -left-20 w-72 h-72 bg-sky-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-            <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <!-- Updated blobs to Rose/Purple -->
+            <div class="absolute -top-20 -left-20 w-72 h-72 bg-rose-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-purple-900/40 rounded-full blur-[100px] pointer-events-none"></div>
 
             <div class="text-center space-y-6 relative z-10">
-                <div class="inline-block p-1 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-2xl mb-4">
-                    <img src="https://github.com/ghaffarsyafiq-arch.png" alt="Profile" class="w-24 h-24 rounded-xl object-cover">
+                <div class="inline-block p-1 rounded-2xl bg-gradient-to-br from-wine-900 to-black border border-rose-900/50 shadow-2xl mb-4">
+                    <img src="https://github.com/ghaffarsyafiq-arch.png" alt="Profile" class="w-24 h-24 rounded-xl object-cover grayscale-[20%] contrast-125">
                 </div>
 
                 <h1 class="text-4xl md:text-6xl font-bold tracking-tight">
                     Hi, I'm <span class="text-gradient">Yaeon</span>.
                 </h1>
-                <p class="text-slate-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+                <p class="text-rose-200/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
                     Seorang Frontend Enthusiast. Ini adalah arsip otomatis. Halaman ini terhubung langsung ke repositori GitHub saya untuk memuat proyek terbaru.
                 </p>
 
                 <!-- Social Links -->
                 <div class="flex justify-center gap-4 pt-4">
-                    <a href="https://github.com/ghaffarsyafiq-arch/yaeonarchive" target="_blank" class="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 transition-all text-slate-400 hover:text-sky-400">
+                    <a href="https://github.com/ghaffarsyafiq-arch/yaeonarchive" target="_blank" class="p-2 rounded-lg bg-wine-900/50 hover:bg-wine-900 border border-white/5 hover:border-rose-500/50 transition-all text-rose-200/50 hover:text-rose-400">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                     </a>
                 </div>
@@ -154,19 +170,19 @@
         <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-8">
             <div>
                 <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <svg class="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     Koleksi Arsip
                     <div id="loading-indicator" class="loader ml-2 hidden"></div>
                 </h2>
-                <p class="text-slate-400 text-sm mt-1">Daftar halaman yang diambil otomatis dari folder <code class="bg-slate-800 px-1 rounded text-sky-300">/archive</code>.</p>
+                <p class="text-rose-200/60 text-sm mt-1">Daftar halaman yang diambil otomatis dari folder <code class="bg-wine-900 px-1 rounded text-rose-300 border border-rose-500/20">/archive</code>.</p>
             </div>
 
             <!-- Search -->
             <div class="relative w-full md:w-64">
                 <input type="text" id="searchInput" placeholder="Filter arsip..." 
-                    class="w-full bg-slate-800/50 border border-slate-700 text-slate-200 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block pl-10 p-2.5 placeholder-slate-500 transition-all">
+                    class="w-full bg-wine-900/50 border border-rose-900/50 text-rose-100 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block pl-10 p-2.5 placeholder-rose-200/30 transition-all shadow-inner">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg class="w-4 h-4 text-rose-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
             </div>
         </div>
@@ -178,25 +194,25 @@
 
         <!-- Empty State -->
         <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
-            <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="w-16 h-16 bg-wine-900/50 rounded-full flex items-center justify-center mb-4 border border-rose-500/20">
+                <svg class="w-8 h-8 text-rose-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <h3 id="empty-title" class="text-lg font-medium text-white">Tidak ada arsip ditemukan</h3>
-            <p id="empty-desc" class="text-slate-500">Folder archive mungkin kosong atau terjadi kesalahan jaringan.</p>
+            <p id="empty-desc" class="text-rose-200/50">Folder archive mungkin kosong atau terjadi kesalahan jaringan.</p>
         </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 bg-slate-900/50 backdrop-blur-sm mt-auto">
+    <footer class="border-t border-white/5 bg-black/20 backdrop-blur-sm mt-auto">
         <div class="container mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-slate-500 text-sm">
+            <div class="text-rose-200/50 text-sm">
                 &copy; <span id="year"></span> Yaeon Archive. 
             </div>
-            <div class="flex items-center gap-4 text-sm text-slate-500">
+            <div class="flex items-center gap-4 text-sm text-rose-200/50">
                 <span>Auto-fetched from GitHub</span>
-                <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
-                <a href="https://github.com/ghaffarsyafiq-arch/yaeonarchive" class="hover:text-sky-400 transition-colors">Repo Link</a>
+                <span class="w-1 h-1 bg-rose-700 rounded-full"></span>
+                <a href="https://github.com/ghaffarsyafiq-arch/yaeonarchive" class="hover:text-rose-400 transition-colors">Repo Link</a>
             </div>
         </div>
     </footer>
@@ -287,24 +303,24 @@
                 card.className = 'glass-card rounded-xl p-6 flex flex-col h-full group relative overflow-hidden animate-[fadeIn_0.5s_ease-out_forwards] opacity-0';
                 
                 const tagsHtml = project.tech.map(t => 
-                    `<span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700/50 text-slate-300 border border-slate-600/50">${t}</span>`
+                    `<span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-black/30 text-rose-200/80 border border-rose-500/20">${t}</span>`
                 ).join('');
 
                 card.innerHTML = `
-                    <div class="absolute inset-0 bg-gradient-to-br from-sky-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
                     <div class="flex items-center justify-between mb-4 relative z-10">
                         <div class="flex gap-2 items-center">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
-                            <span class="text-xs font-medium text-emerald-400 uppercase tracking-wider">${project.category}</span>
+                            <span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></span>
+                            <span class="text-xs font-medium text-amber-400 uppercase tracking-wider">${project.category}</span>
                         </div>
                     </div>
                     
-                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-sky-300 transition-colors relative z-10 truncate" title="${project.title}">
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-300 transition-colors relative z-10 truncate" title="${project.title}">
                         ${project.title}
                     </h3>
                     
-                    <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow relative z-10 border-b border-white/5 pb-4">
+                    <p class="text-rose-200/60 text-sm leading-relaxed mb-6 flex-grow relative z-10 border-b border-rose-500/10 pb-4">
                         ${project.description}
                     </p>
 
@@ -313,7 +329,7 @@
                             ${tagsHtml}
                         </div>
                         
-                        <a href="${project.path}" class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700/50 hover:bg-sky-500 text-white transition-all group-hover:scale-110">
+                        <a href="${project.path}" class="flex items-center justify-center w-8 h-8 rounded-full bg-wine-900/80 hover:bg-rose-600 text-white transition-all group-hover:scale-110 border border-rose-500/20">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </a>
                     </div>
