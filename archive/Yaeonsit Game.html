@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yaensit - Adventure v23 (Fix ID & Consistency)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mesh-color-1: #ff9a9e;
+            --mesh-color-2: #fad0c4;
+            --mesh-color-3: #a1c4fd;
+            --mesh-color-4: #c2e9fb;
+            --mesh-color-5: #fbc2eb;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            background-color: var(--mesh-color-1);
+            background-image: 
+                radial-gradient(at 0% 0%, var(--mesh-color-1) 0px, transparent 50%),
+                radial-gradient(at 50% 0%, var(--mesh-color-2) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, var(--mesh-color-3) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, var(--mesh-color-4) 0px, transparent 50%),
+                radial-gradient(at 100% 50%, var(--mesh-color-5) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, var(--mesh-color-2) 0px, transparent 50%);
+            background-size: 200% 200%;
+            animation: meshAnimation 15s ease infinite;
+        }
+
+        @keyframes meshAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Pergerakan untuk Find Me mode Angle */
+        @keyframes floatRandom {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(12px, -12px); }
+            50% { transform: translate(-12px, 12px); }
+            75% { transform: translate(8px, 18px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .animate-cell-move {
+            animation: floatRandom 2.5s ease-in-out infinite;
+        }
+
+        .screen {
+            display: none;
+            height: 100vh; width: 100vw;
+            position: absolute; top: 0; left: 0;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .active-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transform: translateY(0);
+        }
+
+        .slide-up { transform: translateY(-100%); }
+        .slide-down { transform: translateY(100%); }
+
+        .box-3d {
+            position: relative; transform-style: preserve-3d;
+            box-shadow: -3px 3px 0 rgba(0,0,0,0.2), -6px 6px 0 rgba(0,0,0,0.1);
+        }
+
+        /* --- Characters --- */
+        .character-base {
+            width: 40px; height: 40px;
+            position: relative; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .cell-blob {
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            box-shadow: inset -4px -4px 8px rgba(0,0,0,0.1), 4px 8px 12px rgba(0,0,0,0.1);
+            animation: blobAnim 4s infinite alternate ease-in-out;
+        }
+
+        @keyframes blobAnim {
+            0% { border-radius: 40% 60% 70% 30%; transform: translateY(0); }
+            100% { border-radius: 60% 40% 30% 70%; transform: translateY(-5px); }
+        }
+
+        .rbc-shape { background: #f43f5e; border-radius: 50%; box-shadow: inset 0 0 12px rgba(0,0,0,0.5); }
+        .neuron-shape { background: #fbbf24; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .robot-shape { background: #94a3b8; border-radius: 6px; border: 3px solid #475569; }
+        .sus-shape { border-radius: 30% 30% 10% 10%; width: 32px; height: 45px; border-bottom: 5px solid rgba(0,0,0,0.3); }
+        .gigachad-shape { background: #4b5563; width: 35px; height: 50px; clip-path: polygon(0 0, 100% 0, 85% 85%, 50% 100%, 15% 85%); }
+        
+        .kitty-shape { background: #fff; border-radius: 50% 50% 45% 45%; border: 2px solid #000; width: 45px; height: 38px; }
+        .melodi-shape { background: #f472b6; border-radius: 50% 50% 30% 30%; border: 2px solid #000; width: 38px; height: 45px; }
+        .rabbid-shape { background: #fff; border-radius: 40% 40% 60% 60%; border: 2px solid #000; width: 34px; height: 55px; }
+
+        .face { display: flex; flex-direction: column; gap: 2px; z-index: 10; width: 100%; align-items: center; pointer-events: none; }
+        .eyes { display: flex; gap: 4px; }
+        .eye { width: 5px; height: 5px; background: #222; border-radius: 50%; }
+        .mouth { width: 10px; height: 3px; border-bottom: 2px solid #222; border-radius: 0 0 4px 4px; }
+
+        /* Colors */
+        .color-blue { background: #3b82f6; }
+        .color-red { background: #ef4444; }
+        .color-purple { background: #a855f7; }
+        .color-pink { background: #ec4899; }
+        .color-khaki { background: #f59e0b; }
+        .color-grey { background: #64748b; }
+        .color-green { background: #10b981; }
+        .color-cyan { background: #06b6d4; }
+        .color-tosca { background: #0d9488; }
+
+        .aura-ultimatum { filter: drop-shadow(0 0 15px #f43f5e) brightness(1.5); }
+        .aura-monitor { filter: drop-shadow(0 0 20px #22d3ee) contrast(2); }
+        .aura-secret { filter: invert(1); }
+
+        .btn-3d { transition: all 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .btn-3d:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.1); }
+        .btn-3d:disabled { opacity: 0.6; filter: grayscale(1); cursor: not-allowed; }
+
+        .cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.5); height: 0%; pointer-events: none; }
+
+        #slither-canvas {
+            width: 100%; height: 420px;
+            background: #0f172a; border-radius: 32px; border: 10px solid #334155;
+            position: relative; overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        #dm-canvas {
+            position: relative; width: 100%; height: 420px;
+            background: #0f172a; border-radius: 24px; border: 6px solid #1e293b;
+            overflow: hidden;
+        }
+
+        .battle-hp-box { width: 300px; padding: 10px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #1e293b; }
+        .hp-container { width: 100%; height: 15px; background: #cbd5e1; border-radius: 8px; overflow: hidden; border: 2px solid #1e293b; position: relative; }
+        .hp-fill { height: 100%; background: #10b981; transition: width 0.3s ease; }
+
+        .food-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 12px currentColor; }
+        .snake-segment { position: absolute; width: 28px; height: 28px; border-radius: 8px; z-index: 10; opacity: 0.9; }
+        .heart-life { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+    </style>
+</head>
+<body>
+
+    <!-- HUD -->
+    <div class="fixed top-5 right-5 flex flex-col items-end gap-2 z-[100]">
+        <div class="bg-amber-400 px-6 py-2 rounded-2xl font-black shadow-xl flex items-center gap-2 border-b-4 border-amber-600 text-amber-950">
+            💰 <span id="coin-count">150</span>
+        </div>
+        <button onclick="toggleMusic()" class="bg-white p-3 rounded-full shadow-lg border-2 border-slate-100 hover:scale-110 transition-transform">
+            <span id="music-icon" class="text-xl">🎵</span>
+        </button>
+    </div>
+
+    <!-- SCREENS -->
+    <div id="menu-screen" class="screen active-screen bg-white/80 backdrop-blur-md">
+        <h1 class="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-rose-500 mb-6 drop-shadow-2xl italic">Yaensit</h1>
+        <div id="player-preview" class="mb-10 scale-[2.2]"></div>
+        <div class="flex flex-col gap-4 w-72">
+            <button onclick="goToScreen('play-mode-screen', 'up')" class="btn-3d bg-indigo-600 text-white font-black py-4 rounded-3xl text-2xl hover:bg-indigo-500 uppercase">Main</button>
+            <button onclick="goToScreen('shop-screen', 'up')" class="btn-3d bg-fuchsia-600 text-white font-black py-4 rounded-3xl text-2xl hover:bg-fuchsia-500 uppercase">Toko Skin</button>
+        </div>
+    </div>
+
+    <div id="play-mode-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('menu-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow-lg">← MENU</button>
+        <h2 class="text-5xl font-black text-slate-800 mb-12 uppercase italic text-center">Pilih Mode Game</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 px-10">
+            <div onclick="goToScreen('difficulty-screen', 'up')" class="cursor-pointer bg-white p-8 rounded-[40px] shadow-2xl hover:scale-105 transition-transform text-center border-b-8 border-sky-100">
+                <span class="text-6xl block mb-2">🔍</span>
+                <h3 class="font-black text-sky-600 uppercase">Find Me</h3>
+            </div>
+            <div onclick="goToScreen('battle-select-screen', 'up')" class="cursor-pointer bg-white p-8 rounded-[40px] shadow-2xl hover:scale-105 transition-transform text-center border-b-8 border-rose-100">
+                <span class="text-6xl block mb-2">⚔️</span>
+                <h3 class="font-black text-rose-600 uppercase">Battle</h3>
+            </div>
+            <div onclick="goToScreen('slither-levels-screen', 'up')" class="cursor-pointer bg-white p-8 rounded-[40px] shadow-2xl hover:scale-105 transition-transform text-center border-b-8 border-orange-100">
+                <span class="text-6xl block mb-2">🐍</span>
+                <h3 class="font-black text-orange-600 uppercase">Slither IO</h3>
+            </div>
+            <div onclick="goToScreen('dm-category-screen', 'up')" class="cursor-pointer bg-white p-8 rounded-[40px] shadow-2xl hover:scale-105 transition-transform text-center border-b-8 border-slate-200">
+                <span class="text-6xl block mb-2">🎓</span>
+                <h3 class="font-black text-slate-700 uppercase">Death Match</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOP -->
+    <div id="shop-screen" class="screen bg-white/80 backdrop-blur-md p-10">
+        <button onclick="goToScreen('menu-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KEMBALI</button>
+        <h2 class="text-6xl font-black text-fuchsia-600 mb-10 text-center mt-10 uppercase italic">Skin Shop</h2>
+        <div id="shop-grid" class="grid grid-cols-2 md:grid-cols-5 gap-6 overflow-y-auto max-h-[70vh] w-full max-w-6xl p-4"></div>
+    </div>
+
+    <!-- BATTLE SELECT -->
+    <div id="battle-select-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('play-mode-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KEMBALI</button>
+        <h2 class="text-6xl font-black text-rose-600 mb-8 uppercase italic">Pilih Musuh</h2>
+        <div id="battle-boss-grid" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-h-[70vh] overflow-y-auto p-4 w-full max-w-5xl mx-auto"></div>
+    </div>
+
+    <!-- BATTLE GAMEPLAY -->
+    <div id="battle-screen" class="screen bg-white/80 backdrop-blur-md relative">
+        <button onclick="goToScreen('battle-select-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KABUR</button>
+        <div class="flex flex-col items-center">
+            <div class="flex justify-between w-[90vw] items-end mt-20">
+                <div class="flex flex-col items-center">
+                    <div id="player-battle-sprite" class="mb-6 scale-[2.2] transition-transform duration-200"></div>
+                    <div class="battle-hp-box">
+                        <div class="font-black text-indigo-700 uppercase mb-1 flex justify-between">
+                            <span>You</span>
+                            <span id="p-hp-text-val">1000/1000</span>
+                        </div>
+                        <div class="hp-container"><div id="player-hp-bar" class="hp-fill"></div></div>
+                    </div>
+                </div>
+                <div class="mb-14 text-7xl font-black text-rose-500 italic animate-pulse">VS</div>
+                <div class="flex flex-col items-center">
+                    <div id="bot-battle-sprite" class="character-base cell-blob bg-zinc-900 mb-6 scale-[2.2]">
+                        <div class="face"><div class="eyes"><div class="eye" style="background:#f00"></div><div class="eye" style="background:#f00"></div></div><div class="mouth" style="border-color:#f00"></div></div>
+                    </div>
+                    <div class="battle-hp-box">
+                        <div class="font-black text-rose-700 uppercase mb-1 flex justify-between">
+                            <span id="boss-name-label">Boss</span>
+                            <span id="b-hp-text-val">1000/1000</span>
+                        </div>
+                        <div class="hp-container"><div id="bot-hp-bar" class="hp-fill" style="background:#ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div id="battle-log" class="mt-8 bg-white shadow-xl p-4 rounded-3xl w-1/2 text-center font-black h-14 flex items-center justify-center border-2 border-indigo-100 italic text-xl px-4 text-center">SIAP?</div>
+            <div id="battle-controls" class="grid grid-cols-6 gap-2 mt-8 px-5 w-full max-w-7xl">
+                <button id="btn-punch" onclick="handleBattleAttack('punch')" class="btn-3d bg-sky-500 text-white font-black py-3 rounded-2xl uppercase text-xs">Tinju (15)</button>
+                <button id="btn-kick" onclick="handleBattleAttack('kick')" class="btn-3d bg-indigo-500 text-white font-black py-3 rounded-2xl relative overflow-hidden uppercase text-xs">Tendang (35)
+                    <div id="cd-kick" class="cooldown-overlay"></div>
+                </button>
+                <button id="btn-slash" onclick="handleBattleAttack('slash')" class="btn-3d bg-amber-600 text-white font-black py-3 rounded-2xl relative overflow-hidden uppercase text-xs">Slash (55)
+                    <div id="cd-slash" class="cooldown-overlay"></div>
+                </button>
+                <button id="btn-secret" onclick="handleBattleAttack('secret')" class="btn-3d bg-rose-700 text-white font-black py-3 rounded-2xl relative overflow-hidden uppercase italic text-xs">Secretum (125)
+                    <div id="cd-secret" class="cooldown-overlay"></div>
+                </button>
+                <button id="btn-ultimatum" onclick="handleBattleAttack('ultimatum')" class="btn-3d bg-black text-white font-black py-3 rounded-2xl relative overflow-hidden uppercase italic text-xs">Ultimatum (350)
+                    <div id="cd-ultimatum" class="cooldown-overlay"></div>
+                </button>
+                <button id="btn-monitor" onclick="handleBattleAttack('monitor')" class="btn-3d bg-zinc-800 text-green-400 font-black py-3 rounded-2xl relative overflow-hidden uppercase italic text-xs ring-2 ring-green-500">Monitor (850)
+                    <div id="cd-monitor" class="cooldown-overlay"></div>
+                </button>
+            </div>
+        </div>
+        <div id="battle-end-ui" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white/95 z-[150] backdrop-blur-md">
+            <h2 id="battle-result-text" class="text-8xl font-black mb-8 italic text-center"></h2>
+            <button onclick="goToScreen('battle-select-screen', 'down')" class="btn-3d bg-indigo-600 text-white py-5 px-16 rounded-3xl font-black text-2xl uppercase tracking-widest">Lanjut</button>
+        </div>
+    </div>
+
+    <!-- SLITHER -->
+    <div id="slither-levels-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('play-mode-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KEMBALI</button>
+        <h2 class="text-6xl font-black text-orange-500 mb-6 uppercase text-center italic">Slither Levels</h2>
+        <div id="slither-level-grid" class="grid grid-cols-5 gap-6 p-4"></div>
+    </div>
+
+    <div id="slither-game-screen" class="screen bg-white/80 backdrop-blur-md p-10">
+        <button onclick="stopGame()" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow z-50">← KABUR</button>
+        <div class="flex justify-between w-full max-w-4xl mb-4 items-center bg-white/80 p-4 rounded-3xl border-4 border-orange-500 mx-auto">
+            <div id="slither-lives-container" class="flex gap-1"></div>
+            <h2 class="text-2xl font-black text-orange-600 uppercase">Lvl <span id="slither-lvl-txt">1</span> | Pjg: <span id="snake-len-txt">1</span>/<span id="snake-target-txt">10</span></h2>
+        </div>
+        <div id="slither-canvas" class="mx-auto"></div>
+    </div>
+
+    <!-- DM QUIZ -->
+    <div id="dm-category-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('play-mode-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KEMBALI</button>
+        <h2 class="text-6xl font-black text-slate-800 mb-12 italic uppercase text-center">Death Match</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-10 w-full max-w-5xl mx-auto">
+            <button onclick="showDMLevels('plusmin')" class="btn-3d bg-blue-600 text-white font-black p-10 rounded-[50px] text-2xl flex flex-col items-center gap-4"><span class="text-7xl">➕</span> Plusmin</button>
+            <button onclick="showDMLevels('chemas')" class="btn-3d bg-emerald-600 text-white font-black p-10 rounded-[50px] text-2xl flex flex-col items-center gap-4"><span class="text-7xl">🧪</span> Chemas</button>
+            <button onclick="showDMLevels('biolow')" class="btn-3d bg-orange-600 text-white font-black p-10 rounded-[50px] text-2xl flex flex-col items-center gap-4"><span class="text-7xl">🧬</span> Biolow</button>
+        </div>
+    </div>
+
+    <div id="dm-levels-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('dm-category-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KATEGORI</button>
+        <h2 id="dm-lvl-title-disp" class="text-6xl font-black text-slate-800 mb-6 uppercase text-center">Levels</h2>
+        <div id="dm-level-grid" class="grid grid-cols-5 gap-6 p-4"></div>
+    </div>
+
+    <div id="dm-game-screen" class="screen bg-white/80 backdrop-blur-md p-6">
+        <button onclick="stopGame()" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow z-50">← KABUR</button>
+        <div class="w-full max-w-4xl bg-white/95 p-6 rounded-3xl shadow-xl mb-4 border-4 border-slate-800 flex flex-col items-center mx-auto">
+            <div class="flex justify-between w-full mb-2">
+                <div class="flex flex-col items-start">
+                    <span class="font-black text-slate-500 uppercase tracking-tighter">Level <span id="dm-q-lvl">1</span></span>
+                    <div id="dm-lives-container" class="flex gap-1 mt-1"></div>
+                </div>
+                <span id="dm-timer" class="font-black text-indigo-600 text-3xl">10:00</span>
+            </div>
+            <h3 id="dm-question" class="text-3xl font-black text-center text-slate-800 px-4">...</h3>
+        </div>
+        <div id="dm-canvas" class="mx-auto">
+            <div id="dm-player-container" class="absolute z-30 pointer-events-none"></div>
+        </div>
+    </div>
+
+    <!-- FIND ME -->
+    <div id="difficulty-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('play-mode-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KEMBALI</button>
+        <h2 class="text-6xl font-black text-slate-800 mb-12 italic uppercase text-center">Find Me Mode</h2>
+        <div class="flex flex-col gap-4 w-72 mx-auto">
+            <button onclick="showFindMeLevels('human')" class="btn-3d bg-green-500 text-white font-black py-5 rounded-3xl text-xl uppercase tracking-widest">Human</button>
+            <button onclick="showFindMeLevels('angle')" class="btn-3d bg-sky-500 text-white font-black py-5 rounded-3xl text-xl uppercase tracking-widest">Angle</button>
+            <button onclick="showFindMeLevels('evil')" class="btn-3d bg-rose-600 text-white font-black py-5 rounded-3xl text-xl uppercase tracking-widest">Evil</button>
+        </div>
+    </div>
+
+    <div id="fm-levels-screen" class="screen bg-white/80 backdrop-blur-md">
+        <button onclick="goToScreen('difficulty-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← KEMBALI</button>
+        <h2 id="fm-lvl-title-disp" class="text-6xl font-black text-slate-800 mb-6 uppercase text-center">Levels</h2>
+        <div id="fm-level-grid" class="grid grid-cols-5 gap-6 p-4"></div>
+    </div>
+
+    <div id="find-me-screen" class="screen bg-white/80 backdrop-blur-md p-10">
+        <button onclick="goToScreen('fm-levels-screen', 'down')" class="absolute top-8 left-8 bg-white p-4 rounded-2xl font-black shadow">← MENYERAH</button>
+        <div class="bg-white/90 px-8 py-3 rounded-2xl shadow-xl mb-4 mt-20 flex justify-between w-64 items-center border-4 border-indigo-600 mx-auto">
+            <span class="font-black text-indigo-600 uppercase text-xs">Waktu</span>
+            <span id="fm-timer-txt" class="font-black text-rose-600 text-2xl">10:00</span>
+        </div>
+        <div id="find-me-grid" class="bg-white/40 p-10 rounded-[50px] shadow-inner mt-4 mx-auto w-fit"></div>
+    </div>
+
+    <script>
+        // --- DATABASE SKINS (DEFINED FIRST) ---
+        const skins = [
+            { id: 's1', name: 'Blue Cell', type: 'color', val: 'color-blue', price: 0, unlocked: true, exp: 'cute' },
+            { id: 's2', name: 'Red Cell', type: 'color', val: 'color-red', price: 0, unlocked: true, exp: 'angry' },
+            { id: 's3', name: 'Purple Cell', type: 'color', val: 'color-purple', price: 0, unlocked: true, exp: 'cute' },
+            { id: 's4', name: 'Pink Cell', type: 'color', val: 'color-pink', price: 0, unlocked: true, exp: 'cute' },
+            { id: 's5', name: 'Khaki Cell', type: 'color', val: 'color-khaki', price: 0, unlocked: true, exp: 'sus' },
+            { id: 's6', name: 'Grey Cell', type: 'color', val: 'color-grey', price: 0, unlocked: true, exp: 'serious' },
+            { id: 's7', name: 'Green Cell', type: 'color', val: 'color-green', price: 0, unlocked: true, exp: 'cute' },
+            { id: 's8', name: 'RBC Master', type: 'shape', val: 'rbc-shape', price: 300, unlocked: false, exp: 'serious' },
+            { id: 's9', name: 'Neuron Star', type: 'shape', val: 'neuron-shape', price: 500, unlocked: false, exp: 'nerd' },
+            { id: 's11', name: 'Mecha Bot', type: 'shape', val: 'robot-shape', price: 1500, unlocked: false, exp: 'robot' },
+            { id: 'm_kitty', name: 'Hello Kitty', type: 'shape', val: 'kitty-shape', price: 9000, unlocked: false, exp: 'kitty' },
+            { id: 'm_melodi', name: 'Melodi', type: 'shape', val: 'melodi-shape', price: 13500, unlocked: false, exp: 'melodi' },
+            { id: 'm_rabbid', name: 'Rabbid Invasion', type: 'shape', val: 'rabbid-shape', price: 17500, unlocked: false, exp: 'rabbid' },
+            { id: 'm1', name: 'Among Sus', type: 'shape', val: 'sus-shape color-red', price: 3000, unlocked: false, exp: 'sus' },
+            { id: 'm_cyan', name: 'Cyan Sus', type: 'shape', val: 'sus-shape color-cyan', price: 3500, unlocked: false, exp: 'sus' },
+            { id: 'm_tosca', name: 'Tosca Sus', type: 'shape', val: 'sus-shape color-tosca', price: 5000, unlocked: false, exp: 'sus' },
+            { id: 'm_pink', name: 'Pink Sus', type: 'shape', val: 'sus-shape color-pink', price: 7500, unlocked: false, exp: 'sus' },
+            { id: 'm2', name: 'Gigachad', type: 'shape', val: 'gigachad-shape', price: 4500, unlocked: false, exp: 'chad' },
+            { id: 'm5', name: 'Troll King', type: 'shape', val: 'troll-shape', price: 8000, unlocked: false, exp: 'troll' },
+            { id: 'm7', name: 'ZENITH GOLD', type: 'shape', val: 'cell-blob color-blue', price: 15000, unlocked: false, exp: 'chad', gold: true }
+        ];
+
+        const bosses = [
+            { name: "Kroco Boss", hp: 1000, color: "bg-zinc-800" },
+            { name: "Killer Boss", hp: 5000, color: "bg-red-800" },
+            { name: "Punk Boss", hp: 10000, color: "bg-purple-800" },
+            { name: "Psycopath Boss", hp: 25000, color: "bg-emerald-950" },
+            { name: "Cyana Boss", hp: 50000, color: "bg-cyan-900" },
+            { name: "Arsmall Boss", hp: 100000, color: "bg-rose-950" }
+        ];
+
+        let coins = 150, equipped = skins[0], currentScreenId = 'menu-screen';
+        let musicOn = false, audioCtx = null, winStreak = 0;
+        let obbyUnlocked = 1, fmUnlocked = { human: 1, angle: 1, evil: 1 }, dmUnlocked = { plusmin: 1, chemas: 1, biolow: 1 };
+        let battleUnlockedIdx = 0;
+        
+        let activeGame = null, currentLvl = 1, currentDiff = 'human', currentDMType = 'plusmin', currentBossIdx = 0;
+        let loopReq, timerInterval, timeLeft = 600, dmLives = 3, slitherLives = 3, playerHP = 1000, botHP = 1000, maxBotHP = 1000, isBattleOver = false;
+
+        let snake = [], snakeDir = { x: 1, y: 0 }, snakeFood = [], snakeTargetLen = 10;
+
+        const battleCD = {
+            punch: { total: 0, last: 0, dmg: 15 },
+            kick: { total: 0, last: 0, dmg: 35 },
+            slash: { total: 30000, last: 0, dmg: 55 },
+            secret: { total: 180000, last: 0, dmg: 125 },
+            ultimatum: { total: 600000, last: 0, dmg: 350 },
+            monitor: { total: 1800000, last: 0, dmg: 850 }
+        };
+
+        const keys = { w: false, a: false, s: false, d: false, arrowup: false, arrowdown: false, arrowleft: false, arrowright: false, space: false, shift: false };
+        window.addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (k === ' ') keys.space = true; else if (keys.hasOwnProperty(k)) keys[k] = true; });
+        window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') keys.space = false; else if (keys.hasOwnProperty(k)) keys[k] = false; });
+
+        // --- CORE FUNCTIONS ---
+        function renderFace(exp) {
+            if(exp === 'kitty') {
+                return `<div class="face relative">
+                    <div class="eyes flex gap-4"><div class="eye"></div><div class="eye"></div></div>
+                    <div class="absolute -top-4 -left-1 w-3 h-3 bg-red-500 rounded-full" style="border:1px solid black"></div>
+                    <div class="absolute -left-5 top-2 w-4 h-[1px] bg-black"></div>
+                    <div class="absolute -left-5 top-4 w-4 h-[1px] bg-black"></div>
+                    <div class="absolute -right-5 top-2 w-4 h-[1px] bg-black"></div>
+                    <div class="absolute -right-5 top-4 w-4 h-[1px] bg-black"></div>
+                </div>`;
+            }
+            if(exp === 'melodi') {
+                return `<div class="face"><div class="eyes flex gap-3"><div class="eye"></div><div class="eye"></div></div><div class="mouth w-5 h-2 border-b-2 border-black rounded-full mt-1"></div></div>`;
+            }
+            if(exp === 'rabbid') {
+                return `<div class="face"><div class="eyes flex gap-5"><div class="eye w-4 h-4 bg-red-500" style="border:2px solid black"></div><div class="eye w-4 h-4 bg-red-500" style="border:2px solid black"></div></div><div class="bg-white border-2 border-black w-8 h-4 rounded-b-lg flex justify-center mt-1"><div class="w-3 h-1 bg-gray-200"></div></div></div>`;
+            }
+
+            let eyes = `<div class="eye"></div><div class="eye"></div>`;
+            if (exp === 'angry') eyes = `<div class="eye" style="transform:rotate(25deg); border-top:2px solid #000"></div><div class="eye" style="transform:rotate(-25deg); border-top:2px solid #000"></div>`;
+            if (exp === 'chad') return `<div class="face"><div class="eyes gap-4" style="margin-top:-3px;"><div class="eye" style="width:10px; height:2px; border-radius:0;"></div><div class="eye" style="width:10px; height:2px; border-radius:0;"></div></div><div class="mouth" style="border-top:2px solid #000; border-bottom:0; width:20px; border-radius:10px 10px 0 0; margin-top:5px;"></div></div>`;
+            if (exp === 'sus') return `<div class="face"><div class="eye" style="width:25px; height:10px; background:#bae6fd; border:2px solid #000; border-radius:5px;"></div></div>`;
+            if (exp === 'robot') eyes = `<div class="eye" style="width:8px; height:8px; background:#22d3ee; box-shadow:0 0 10px #22d3ee; border-radius:1px;"></div><div class="eye" style="width:8px; height:8px; background:#22d3ee; box-shadow:0 0 10px #22d3ee; border-radius:1px;"></div>`;
+            if (exp === 'troll') return `<div class="face"><div class="eyes gap-5"><div class="eye" style="height:3px; width:12px;"></div><div class="eye" style="height:3px; width:12px;"></div></div><div class="mouth" style="width:35px; height:15px; border:2px solid #000; border-radius: 0 0 15px 15px; border-top:0; transform:rotate(-3deg);"></div></div>`;
+            if (exp === 'nerd') eyes = `<div class="eye" style="width:14px; height:14px; border:2px solid #000; background:#fff;"></div><div class="eye" style="width:14px; height:14px; border:2px solid #000; background:#fff;"></div>`;
+            return `<div class="face"><div class="eyes">${eyes}</div><div class="mouth"></div></div>`;
+        }
+
+        function renderChar(conId, skin, scale=1) {
+            const el = document.getElementById(conId); if(!el) return null; el.innerHTML = '';
+            const char = document.createElement('div');
+            char.className = 'character-base ' + (skin.type === 'color' ? 'cell-blob ' + skin.val : skin.val);
+            char.style.transform = `scale(${scale})`;
+            char.innerHTML = renderFace(skin.exp);
+            if(skin.gold) char.style.filter = 'drop-shadow(0 0 10px gold) brightness(1.1)';
+            el.appendChild(char);
+            return char;
+        }
+
+        function renderShop() {
+            const grid = document.getElementById('shop-grid'); if(!grid) return; grid.innerHTML = '';
+            skins.forEach(s => {
+                const card = document.createElement('div');
+                card.className = `p-4 bg-white rounded-[40px] shadow-lg flex flex-col items-center border-4 transition-all ${equipped.id === s.id ? 'border-indigo-500 scale-105' : 'border-transparent'}`;
+                const pre = document.createElement('div');
+                pre.className = `w-12 h-12 mb-2 scale-75 character-base ${s.type === 'color' ? 'cell-blob '+s.val : s.val}`;
+                pre.innerHTML = renderFace(s.exp);
+                const btn = document.createElement('button');
+                btn.className = `w-full py-1 rounded-2xl font-black mt-2 text-sm ${s.unlocked ? 'bg-indigo-50 text-indigo-600' : 'bg-amber-400 text-amber-950'}`;
+                btn.innerText = s.unlocked ? (equipped.id === s.id ? 'DIPAKAI' : 'PILIH') : `💰 ${s.price.toLocaleString()}`;
+                btn.onclick = () => { 
+                    if(s.unlocked) { equipped = s; updateUI(); } 
+                    else if(coins >= s.price) { coins -= s.price; s.unlocked = true; updateUI(); msg("Skin Terbuka!"); } 
+                    else msg("Koin Kurang!");
+                };
+                card.append(pre, document.createTextNode(s.name), btn); grid.appendChild(card);
+            });
+        }
+
+        function renderSlitherLevels() {
+            const grid = document.getElementById('slither-level-grid'); if(!grid) return; grid.innerHTML = '';
+            for(let i=1; i<=20; i++) {
+                const card = document.createElement('div'); const lock = i > obbyUnlocked;
+                card.className = `w-14 h-14 flex items-center justify-center font-black rounded-xl border-b-4 ${lock ? 'bg-slate-200 text-slate-400' : 'bg-orange-500 text-white shadow-lg cursor-pointer hover:scale-110'}`;
+                card.innerHTML = lock ? '🔒' : i; if(!lock) card.onclick = () => startSlither(i); grid.appendChild(card);
+            }
+        }
+
+        function goToScreen(id, dir) {
+            const cur = document.getElementById(currentScreenId);
+            const tar = document.getElementById(id);
+            tar.style.display = 'flex';
+            if (dir === 'up') {
+                tar.classList.add('slide-down');
+                setTimeout(() => { cur.classList.add('slide-up'); tar.classList.remove('slide-down'); tar.classList.add('active-screen'); }, 10);
+            } else {
+                tar.classList.add('slide-up');
+                setTimeout(() => { cur.classList.add('slide-down'); tar.classList.remove('slide-up'); tar.classList.add('active-screen'); }, 10);
+            }
+            setTimeout(() => { 
+                cur.style.display = 'none'; cur.classList.remove('active-screen', 'slide-up', 'slide-down'); 
+                currentScreenId = id; 
+                if(id === 'battle-select-screen') renderBossGrid();
+                updateUI(); 
+            }, 610);
+        }
+
+        function updateUI() {
+            const coinEl = document.getElementById('coin-count');
+            if(coinEl) coinEl.innerText = coins.toLocaleString();
+            renderChar('player-preview', equipped, 2.2);
+            if(currentScreenId === 'shop-screen') renderShop();
+            if(currentScreenId === 'slither-levels-screen') renderSlitherLevels();
+        }
+
+        function msg(t) {
+            const b = document.getElementById('msg-box'); if(!b) return;
+            b.innerText = t; b.classList.add('scale-100'); 
+            setTimeout(() => b.classList.remove('scale-100'), 2500);
+        }
+
+        function showAnnouncement(win) {
+            if(win) {
+                winStreak++;
+                let txt = "Kamu Menang! 🏆";
+                if(winStreak >= 5) txt = "Ampun Ketua! 🛐";
+                else if(winStreak >= 3) txt = "Pro Player Nih! 🔥";
+                msg(txt);
+                coins += 150;
+            } else {
+                winStreak = 0;
+                msg("HUUU CUPU 💩");
+            }
+            updateUI();
+        }
+
+        function stopGame() { activeGame = null; clearInterval(timerInterval); cancelAnimationFrame(loopReq); goToScreen('play-mode-screen', 'down'); }
+
+        // --- BATTLE ---
+        function renderBossGrid() {
+            const grid = document.getElementById('battle-boss-grid'); if(!grid) return; grid.innerHTML = '';
+            bosses.forEach((boss, i) => {
+                const isUnlocked = i <= battleUnlockedIdx;
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-3xl shadow-xl flex flex-col items-center border-4 transition-all ${isUnlocked ? 'bg-white border-rose-500 cursor-pointer hover:scale-105' : 'bg-slate-200 border-slate-400 grayscale opacity-60'}`;
+                card.innerHTML = `<div class="text-4xl mb-3 text-center">${isUnlocked ? '👹' : '🔒'}</div><div class="font-black text-lg text-center uppercase text-xs">${boss.name}</div><div class="text-sm font-bold text-slate-500 text-center">HP: ${boss.hp.toLocaleString()}</div>`;
+                if(isUnlocked) card.onclick = () => startBattle(i);
+                grid.appendChild(card);
+            });
+        }
+
+        function startBattle(idx) {
+            currentBossIdx = idx;
+            const boss = bosses[idx];
+            botHP = boss.hp; maxBotHP = boss.hp;
+            playerHP = 1000 + (idx * 500); 
+            isBattleOver = false;
+            for(let k in battleCD) battleCD[k].last = 0; 
+            goToScreen('battle-screen', 'up');
+            document.getElementById('battle-end-ui').classList.add('hidden');
+            document.getElementById('boss-name-label').innerText = boss.name;
+            document.getElementById('bot-battle-sprite').className = `character-base cell-blob ${boss.color} mb-6 scale-[2.2]`;
+            renderChar('player-battle-sprite', equipped, 2);
+            updateBattleUI();
+            updateBattleCooldowns();
+        }
+
+        function updateBattleUI() {
+            const maxPHP = 1000 + (currentBossIdx * 500);
+            const pBar = document.getElementById('player-hp-bar');
+            const bBar = document.getElementById('bot-hp-bar');
+            if(pBar) pBar.style.width = (playerHP / maxPHP * 100) + '%';
+            if(bBar) bBar.style.width = (botHP / maxBotHP * 100) + '%';
+            const pVal = document.getElementById('p-hp-text-val');
+            const bVal = document.getElementById('b-hp-text-val');
+            if(pVal) pVal.innerText = `${playerHP}/${maxPHP}`;
+            if(bVal) bVal.innerText = `${botHP}/${maxBotHP}`;
+        }
+
+        function handleBattleAttack(skill) {
+            if (isBattleOver) return;
+            const now = Date.now();
+            const isDefault = equipped.id.startsWith('s') && parseInt(equipped.id.slice(1)) <= 7;
+            if((skill === 'ultimatum' || skill === 'monitor') && !isDefault) { msg("Khusus Karakter Default! ❌"); return; }
+            if (now - battleCD[skill].last < battleCD[skill].total) return;
+
+            battleCD[skill].last = now;
+            const p = document.getElementById('player-battle-sprite');
+            
+            p.classList.remove('aura-ultimatum', 'aura-monitor', 'aura-secret');
+            if(skill === 'punch') { p.style.transform = "scale(2) translateX(120px)"; }
+            if(skill === 'kick') { p.style.transform = "scale(2) translateX(120px) rotate(360deg)"; }
+            if(skill === 'slash') { p.style.transform = "scale(2) translate(120px, -50px) rotate(-45deg)"; document.body.style.filter = "contrast(1.5)"; setTimeout(()=>document.body.style.filter="none", 200); }
+            if(skill === 'secret') { p.classList.add('aura-secret'); document.body.style.filter = "invert(1)"; setTimeout(()=>document.body.style.filter="none", 300); }
+            if(skill === 'ultimatum') { p.classList.add('aura-ultimatum'); document.body.style.filter = "brightness(2)"; setTimeout(()=>document.body.style.filter="none", 500); }
+            if(skill === 'monitor') { p.classList.add('aura-monitor'); p.style.transform = "scale(2.5) skew(10deg)"; setTimeout(()=>p.style.transform="scale(2)", 1000); }
+            setTimeout(() => { if(!isBattleOver && p) p.style.transform = "scale(2)"; }, 400);
+
+            botHP -= battleCD[skill].dmg; if(botHP < 0) botHP = 0;
+            updateBattleUI();
+            document.getElementById('battle-log').innerText = skill.toUpperCase() + "! -" + battleCD[skill].dmg;
+
+            if(botHP <= 0) {
+                isBattleOver = true;
+                if(currentBossIdx === battleUnlockedIdx && battleUnlockedIdx < bosses.length - 1) battleUnlockedIdx++;
+                document.getElementById('battle-end-ui').classList.remove('hidden');
+                document.getElementById('battle-result-text').innerText = "BOSS TERKALAHKAN!";
+                showAnnouncement(true);
+                return;
+            }
+
+            setTimeout(() => {
+                if(isBattleOver) return;
+                const bDmg = (currentBossIdx === 0) ? (25 + Math.floor(Math.random()*76)) : (50 + Math.floor(Math.random()*101));
+                playerHP -= bDmg; if(playerHP < 0) playerHP = 0;
+                document.getElementById('battle-log').innerText = `BOSS SERANG! -${bDmg}`;
+                updateBattleUI();
+                if(playerHP <= 0) { isBattleOver = true; document.getElementById('battle-end-ui').classList.remove('hidden'); document.getElementById('battle-result-text').innerText = "KAMU TEWAS!"; showAnnouncement(false); }
+            }, 1000);
+        }
+
+        function updateBattleCooldowns() {
+            if(currentScreenId !== 'battle-screen') return;
+            const now = Date.now();
+            ['slash', 'secret', 'ultimatum', 'monitor'].forEach(k => {
+                const btn = document.getElementById('btn-' + k);
+                const over = document.getElementById('cd-' + k);
+                if(btn && over) {
+                    const diff = now - battleCD[k].last;
+                    if(diff < battleCD[k].total) { btn.disabled = true; over.style.height = (100 - (diff/battleCD[k].total*100)) + '%'; }
+                    else { btn.disabled = false; over.style.height = '0%'; }
+                }
+            });
+            requestAnimationFrame(updateBattleCooldowns);
+        }
+
+        // --- SLITHER ---
+        function startSlither(lvl) {
+            currentLvl = lvl; activeGame = 'slither'; snakeTargetLen = 5 + lvl;
+            snake = [{ x: 400, y: 210 }]; snakeDir = { x: 1, y: 0 }; snakeFood = [];
+            slitherLives = 3;
+            goToScreen('slither-game-screen', 'up');
+            document.getElementById('slither-lvl-txt').innerText = lvl;
+            document.getElementById('snake-target-txt').innerText = snakeTargetLen;
+            updateSlitherLives();
+            for(let i=0; i<30; i++) spawnFood();
+            slitherLoop();
+        }
+
+        function updateSlitherLives() {
+            const con = document.getElementById('slither-lives-container'); if(!con) return; con.innerHTML = '';
+            for(let i=0; i<3; i++) {
+                const h = document.createElement('span'); h.className = 'heart-life';
+                h.innerText = i < slitherLives ? '❤️' : '🖤'; con.appendChild(h);
+            }
+        }
+
+        function spawnFood() {
+            snakeFood.push({ x: 30 + Math.random()*720, y: 30 + Math.random()*360, color: `hsl(${Math.random()*360}, 80%, 50%)` });
+        }
+
+        function slitherLoop() {
+            if(activeGame !== 'slither') return;
+            const canvas = document.getElementById('slither-canvas'); if(!canvas) return;
+            canvas.innerHTML = '';
+
+            if(keys.a || keys.arrowleft) { if(snakeDir.x !== 1) snakeDir = { x: -1, y: 0 }; }
+            else if(keys.d || keys.arrowright) { if(snakeDir.x !== -1) snakeDir = { x: 1, y: 0 }; }
+            else if(keys.w || keys.arrowup) { if(snakeDir.y !== 1) snakeDir = { x: 0, y: -1 }; }
+            else if(keys.s || keys.arrowdown) { if(snakeDir.y !== -1) snakeDir = { x: 0, y: 1 }; }
+
+            let head = { ...snake[0] };
+            let speed = keys.shift ? 5.5 : 3.5;
+            head.x += snakeDir.x * speed; head.y += snakeDir.y * speed;
+
+            // Spawn food faster check
+            if (Math.random() < 0.05 && snakeFood.length < 50) spawnFood();
+
+            if(head.x < 12 || head.x > 768 || head.y < 12 || head.y > 408) { 
+                slitherLives--; updateSlitherLives();
+                if(slitherLives <= 0) { stopGame(); showAnnouncement(false); return; }
+                else { msg("Dinding! -1 Nyawa 💔"); snake = [{ x: 400, y: 210 }]; snakeDir = { x: 1, y: 0 }; }
+            }
+
+            snake.unshift(head);
+            let ate = false;
+            snakeFood.forEach((f, i) => { if(Math.hypot(head.x - f.x, head.y - f.y) < 30) { ate = true; snakeFood.splice(i, 1); spawnFood(); } });
+            if(!ate) { if(snake.length > 5) snake.pop(); } 
+
+            snakeFood.forEach(f => {
+                let d = document.createElement('div'); d.className = 'food-dot';
+                d.style.left = f.x + 'px'; d.style.top = f.y + 'px'; d.style.color = f.color; d.style.background = f.color;
+                canvas.appendChild(d);
+            });
+
+            snake.forEach((seg, i) => {
+                if(i % 5 !== 0 && i !== 0) return; 
+                let s = document.createElement('div'); s.className = 'snake-segment ' + (equipped.type === 'color' ? 'cell-blob '+equipped.val : equipped.val);
+                if(i === 0) s.innerHTML = renderFace(equipped.exp);
+                s.style.left = (seg.x - 14) + 'px'; s.style.top = (seg.y - 14) + 'px';
+                s.style.zIndex = 50 - i;
+                canvas.appendChild(s);
+            });
+
+            let curLen = Math.floor(snake.length / 5);
+            const lenTxt = document.getElementById('snake-len-txt');
+            if(lenTxt) lenTxt.innerText = curLen;
+            if(curLen >= snakeTargetLen) { activeGame = null; if(currentLvl === obbyUnlocked) obbyUnlocked++; showAnnouncement(true); setTimeout(() => goToScreen('slither-levels-screen', 'down'), 1500); }
+            else { loopReq = requestAnimationFrame(slitherLoop); }
+        }
+
+        // --- DM QUIZ ---
+        const qLog = {
+            plusmin: (l) => {
+                if(l===1) return {q:"12 + 15 = ?", a:"27", w:["25","30"]};
+                if(l===2) return {q:"50 - 12 = ?", a:"38", w:["40","36"]};
+                if(l===3) return {q:"7 x 8 = ?", a:"56", w:["48","64"]};
+                if(l===4) return {q:"100 / 5 = ?", a:"20", w:["25","10"]};
+                return {q:`${l*5}+${l*3}`, a:(l*8).toString(), w:[(l*8+5).toString(),(l*8-2).toString()]};
+            },
+            chemas: (l) => { const p=[{q:"Hidrogen",a:"H",w:["He","O"]},{q:"Air",a:"H2O",w:["CO2","NaCl"]}]; return p[(l-1)%p.length]; },
+            biolow: (l) => { const p=[{q:"Unit Sel",a:"Sel",w:["Organ","Atom"]},{q:"Pusat Sel",a:"Nukleus",w:["Dinding","Sitoplasma"]}]; return p[(l-1)%p.length]; }
+        };
+        function showDMLevels(t) { currentDMType = t; document.getElementById('dm-lvl-title-disp').innerText = t.toUpperCase(); renderLevelGridDM(); goToScreen('dm-levels-screen','up'); }
+        function renderLevelGridDM() { const grid = document.getElementById('dm-level-grid'); grid.innerHTML = ''; for(let i=1; i<=20; i++) { const card = document.createElement('div'); const lock = i > dmUnlocked[currentDMType]; card.className = `w-14 h-14 flex items-center justify-center font-black rounded-xl border-b-4 ${lock ? 'bg-slate-200 text-slate-400' : 'bg-indigo-500 text-white shadow-lg cursor-pointer hover:scale-110'}`; card.innerHTML = lock ? '🔒' : i; if(!lock) card.onclick = () => startDM(i); grid.appendChild(card); } }
+        function startDM(lvl) { currentLvl = lvl; dmLives = 3; timeLeft = 600; dmX = 400; dmY = 210; goToScreen('dm-game-screen', 'up'); document.getElementById('dm-q-lvl').innerText = lvl; activeGame = 'dm'; renderChar('dm-player-container', equipped, 1); updateDMLivesDisplay(); generateNewQuestion(); clearInterval(timerInterval); timerInterval = setInterval(() => { timeLeft--; const min = Math.floor(timeLeft/60), sec = timeLeft%60; const timerEl = document.getElementById('dm-timer'); if(timerEl) timerEl.innerText = `${min}:${sec < 10 ? '0'+sec : sec}`; if(timeLeft <= 0) { stopGame(); showAnnouncement(false); } }, 1000); gameLoop(); }
+        function updateDMLivesDisplay() { const con = document.getElementById('dm-lives-container'); if(!con) return; con.innerHTML = ''; for(let i=0; i<3; i++) { const h = document.createElement('span'); h.className = 'heart-life'; h.innerText = i < dmLives ? '❤️' : '🖤'; con.appendChild(h); } }
+        function generateNewQuestion() { const data = qLog[currentDMType](currentLvl); document.getElementById('dm-question').innerText = data.q; const canvas = document.getElementById('dm-canvas'); canvas.querySelectorAll('.dm-item').forEach(i => i.remove()); const answers = [{ text: data.a, correct: true }, ...data.w.map(t => ({ text: t, correct: false }))].sort(() => Math.random() - 0.5); const boxColors = ['bg-indigo-600', 'bg-emerald-600', 'bg-rose-600', 'bg-amber-600', 'bg-fuchsia-600']; dmProjectiles = answers.map((ans, i) => { const node = document.createElement('div'); node.className = `dm-item box-3d ${boxColors[Math.floor(Math.random()*boxColors.length)]}`; node.innerText = ans.text; canvas.appendChild(node); return { el: node, correct: ans.correct, x: 50 + (i * 170), y: (i % 2 === 0 ? 50 : 320), vx: (1.2 + currentLvl * 0.18) * (Math.random() > 0.5 ? 1 : -1), vy: (1.2 + currentLvl * 0.18) * (Math.random() > 0.5 ? 1 : -1) }; }); }
+        function gameLoop() {
+            if(!activeGame) return;
+            if(activeGame === 'dm') {
+                const p = document.getElementById('dm-player-container');
+                let speed = keys.shift ? 7 : 4.5;
+                if (keys.a || keys.arrowleft) dmX -= speed; if (keys.d || keys.arrowright) dmX += speed;
+                if (keys.w || keys.arrowup) dmY -= speed; if (keys.s || keys.arrowdown) dmY += speed;
+                if(dmX < 20) dmX = 20; if(dmX > 780) dmX = 780; if(dmY < 20) dmY = 20; if(dmY > 400) dmY = 400;
+                if(p) { p.style.left = (dmX - 20) + 'px'; p.style.top = (dmY - 20) + 'px'; }
+                dmProjectiles.forEach(node => {
+                    node.x += node.vx; node.y += node.vy;
+                    if(node.x < 0 || node.x > 680) node.vx *= -1; if(node.y < 0 || node.y > 365) node.vy *= -1;
+                    node.el.style.left = node.x + 'px'; node.el.style.top = node.y + 'px';
+                    if(Math.hypot((node.x + 60) - dmX, (node.y + 27) - dmY) < 45) {
+                        if(node.correct) { activeGame = null; clearInterval(timerInterval); if(currentLvl === dmUnlocked[currentDMType] && dmUnlocked[currentDMType] < 20) dmUnlocked[currentDMType]++; showAnnouncement(true); setTimeout(() => showDMLevels(currentDMType), 1500); } 
+                        else { dmLives--; updateDMLivesDisplay(); if(dmLives <= 0) { stopGame(); showAnnouncement(false); } else { msg("Salah! -1 Nyawa 💔"); dmX = 400; dmY = 210; } }
+                    }
+                });
+            }
+            loopReq = requestAnimationFrame(gameLoop);
+        }
+
+        // --- FIND ME ---
+        function showFindMeLevels(d) { currentDiff = d; const head = document.getElementById('fm-lvl-title-disp'); if(head) head.innerText = d.toUpperCase(); renderLevelGridFM(); goToScreen('fm-levels-screen', 'up'); }
+        function renderLevelGridFM() { const grid = document.getElementById('fm-level-grid'); if(!grid) return; grid.innerHTML = ''; for(let i=1; i<=20; i++) { const card = document.createElement('div'); const lock = i > fmUnlocked[currentDiff]; card.className = `w-14 h-14 flex items-center justify-center font-black rounded-xl border-b-4 ${lock ? 'bg-slate-200 text-slate-400' : 'bg-indigo-500 text-white shadow-lg cursor-pointer hover:scale-110'}`; card.innerHTML = lock ? '🔒' : i; if(!lock) card.onclick = () => startFindMe(currentDiff, i); grid.appendChild(card); } }
+        function startFindMe(diff, lvl) {
+            currentDiff = diff; currentLvl = lvl; timeLeft = 600; goToScreen('find-me-screen', 'up'); const grid = document.getElementById('find-me-grid'); if(!grid) return; grid.innerHTML = '';
+            let count = diff === 'human' ? 12 : (diff === 'angle' ? 24 : 48); grid.className = `grid grid-cols-${diff === 'human' ? 4 : (diff === 'angle' ? 6 : 8)} gap-4`;
+            const tIdx = Math.floor(Math.random() * count), hue = Math.random() * 360, hDiff = Math.max(2, 20 - lvl);
+            for(let i=0; i<count; i++) { 
+                const c = document.createElement('div'); 
+                c.className = 'character-base cell-blob cursor-pointer hover:scale-110'; 
+                c.style.background = `hsl(${hue + (i === tIdx ? hDiff : 0)}, 70%, 60%)`;
+                if (diff === 'angle') c.classList.add('animate-cell-move');
+                if (diff === 'evil') c.style.opacity = '0.4';
+                c.onclick = () => { if(i === tIdx) { activeGame=null; clearInterval(timerInterval); if(currentLvl === fmUnlocked[currentDiff] && fmUnlocked[currentDiff] < 20) fmUnlocked[currentDiff]++; showAnnouncement(true); setTimeout(() => showFindMeLevels(currentDiff), 1500); } else { c.style.opacity = '0.1'; showAnnouncement(false); } }; grid.appendChild(c);
+            }
+            clearInterval(timerInterval); timerInterval = setInterval(() => { timeLeft--; const min = Math.floor(timeLeft/60), sec = timeLeft%60; const timerEl = document.getElementById('fm-timer-txt'); if(timerEl) timerEl.innerText = `${min}:${sec < 10 ? '0'+sec : sec}`; if(timeLeft <= 0) { stopGame(); showAnnouncement(false); } }, 1000);
+        }
+
+        function toggleMusic() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); musicOn = !musicOn; document.getElementById('music-icon').innerText = musicOn ? '🔊' : '🎵'; if(musicOn) { const loop = () => { if(!musicOn) return; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.setValueAtTime([261, 329, 392, 440][Math.floor(Math.random()*4)], audioCtx.currentTime); g.gain.setValueAtTime(0.02, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3); o.start(); setTimeout(loop, 400); }; loop(); } }
+
+        window.onload = () => { updateUI(); };
+    </script>
+</body>
+</html>
