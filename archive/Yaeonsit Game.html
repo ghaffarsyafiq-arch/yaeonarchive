@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yaensit - Adventure v23 (Fix ID & Consistency)</title>
+    <title>Yaensit - Adventure v24 (Anime Update)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -95,8 +95,46 @@
         .gigachad-shape { background: #4b5563; width: 35px; height: 50px; clip-path: polygon(0 0, 100% 0, 85% 85%, 50% 100%, 15% 85%); }
         
         .kitty-shape { background: #fff; border-radius: 50% 50% 45% 45%; border: 2px solid #000; width: 45px; height: 38px; }
-        .melodi-shape { background: #f472b6; border-radius: 50% 50% 30% 30%; border: 2px solid #000; width: 38px; height: 45px; }
+        
+        /* FIX MELODI: More accurate shape */
+        .melodi-shape { 
+            background: #f472b6; 
+            border-radius: 40% 40% 35% 35%; 
+            border: 2px solid #000; 
+            width: 44px; height: 40px; 
+            position: relative;
+        }
+
         .rabbid-shape { background: #fff; border-radius: 40% 40% 60% 60%; border: 2px solid #000; width: 34px; height: 55px; }
+
+        /* ANIME CHARACTERS */
+        .tanjiro-shape {
+            background-color: #10b981;
+            background-image: 
+                linear-gradient(45deg, #000 25%, transparent 25%), 
+                linear-gradient(-45deg, #000 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #000 75%), 
+                linear-gradient(-45deg, transparent 75%, #000 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+            border-radius: 12px;
+            border: 2px solid #064e3b;
+            width: 40px; height: 42px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .zenitsu-shape {
+            background: #facc15;
+            background-image: linear-gradient(135deg, #fff 25%, transparent 25%), linear-gradient(225deg, #fff 25%, transparent 25%), linear-gradient(45deg, #fff 25%, transparent 25%), linear-gradient(315deg, #fff 25%, transparent 25%);
+            background-position:  4px 0, 4px 0, 0 0, 0 0;
+            background-size: 8px 8px;
+            background-repeat: repeat;
+            border-radius: 12px;
+            border: 2px solid #b45309;
+            width: 40px; height: 42px;
+            box-shadow: inset 0 0 5px rgba(234, 179, 8, 0.5);
+        }
+
 
         .face { display: flex; flex-direction: column; gap: 2px; z-index: 10; width: 100%; align-items: center; pointer-events: none; }
         .eyes { display: flex; gap: 4px; }
@@ -337,7 +375,7 @@
     </div>
 
     <script>
-        // --- DATABASE SKINS (DEFINED FIRST) ---
+        // --- DATABASE SKINS ---
         const skins = [
             { id: 's1', name: 'Blue Cell', type: 'color', val: 'color-blue', price: 0, unlocked: true, exp: 'cute' },
             { id: 's2', name: 'Red Cell', type: 'color', val: 'color-red', price: 0, unlocked: true, exp: 'angry' },
@@ -350,8 +388,16 @@
             { id: 's9', name: 'Neuron Star', type: 'shape', val: 'neuron-shape', price: 500, unlocked: false, exp: 'nerd' },
             { id: 's11', name: 'Mecha Bot', type: 'shape', val: 'robot-shape', price: 1500, unlocked: false, exp: 'robot' },
             { id: 'm_kitty', name: 'Hello Kitty', type: 'shape', val: 'kitty-shape', price: 9000, unlocked: false, exp: 'kitty' },
+            
+            // Updated Melodi Price & ID logic
             { id: 'm_melodi', name: 'Melodi', type: 'shape', val: 'melodi-shape', price: 13500, unlocked: false, exp: 'melodi' },
+            
             { id: 'm_rabbid', name: 'Rabbid Invasion', type: 'shape', val: 'rabbid-shape', price: 17500, unlocked: false, exp: 'rabbid' },
+            
+            // NEW CHARACTERS
+            { id: 'a_zenitsu', name: 'Zenitsu', type: 'shape', val: 'zenitsu-shape', price: 23500, unlocked: false, exp: 'zenitsu' },
+            { id: 'a_tanjiro', name: 'Tanjiro', type: 'shape', val: 'tanjiro-shape', price: 25500, unlocked: false, exp: 'tanjiro' },
+            
             { id: 'm1', name: 'Among Sus', type: 'shape', val: 'sus-shape color-red', price: 3000, unlocked: false, exp: 'sus' },
             { id: 'm_cyan', name: 'Cyan Sus', type: 'shape', val: 'sus-shape color-cyan', price: 3500, unlocked: false, exp: 'sus' },
             { id: 'm_tosca', name: 'Tosca Sus', type: 'shape', val: 'sus-shape color-tosca', price: 5000, unlocked: false, exp: 'sus' },
@@ -406,10 +452,47 @@
                 </div>`;
             }
             if(exp === 'melodi') {
-                return `<div class="face"><div class="eyes flex gap-3"><div class="eye"></div><div class="eye"></div></div><div class="mouth w-5 h-2 border-b-2 border-black rounded-full mt-1"></div></div>`;
+                // FIXED MELODI: White face mask on pink hood + simple cute face
+                return `<div class="face relative w-full h-full flex justify-center items-center">
+                    <div class="absolute top-0 -left-1 w-3 h-8 bg-pink-400 border-2 border-black rounded-t-full origin-bottom -rotate-12"></div>
+                    <div class="absolute top-0 -right-1 w-3 h-8 bg-pink-400 border-2 border-black rounded-t-full origin-bottom rotate-12"></div>
+                    <div class="absolute bottom-1 w-[32px] h-[26px] bg-white border-2 border-black rounded-[45%] flex flex-col items-center justify-center pt-2">
+                        <div class="eyes flex gap-4 mb-1"><div class="eye w-[4px] h-[6px] bg-black rounded-full"></div><div class="eye w-[4px] h-[6px] bg-black rounded-full"></div></div>
+                        <div class="mouth w-2 h-1 bg-yellow-400 rounded-full border border-black"></div>
+                    </div>
+                </div>`;
             }
             if(exp === 'rabbid') {
                 return `<div class="face"><div class="eyes flex gap-5"><div class="eye w-4 h-4 bg-red-500" style="border:2px solid black"></div><div class="eye w-4 h-4 bg-red-500" style="border:2px solid black"></div></div><div class="bg-white border-2 border-black w-8 h-4 rounded-b-lg flex justify-center mt-1"><div class="w-3 h-1 bg-gray-200"></div></div></div>`;
+            }
+            if(exp === 'tanjiro') {
+                 // TANJIRO: Scar, Red Hair tint, Earrings
+                return `<div class="face relative w-full h-full flex flex-col items-center pt-2">
+                    <div class="absolute -top-1 w-full h-3 bg-[#7f1d1d] rounded-t-lg opacity-80"></div>
+                    <div class="absolute top-2 left-2 w-3 h-3 bg-[#9f1239] opacity-70 rounded-sm" style="clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 80%);"></div>
+                    <div class="eyes flex gap-4 mt-2">
+                        <div class="eye w-[8px] h-[8px] bg-[#7f1d1d] border border-black"></div>
+                        <div class="eye w-[8px] h-[8px] bg-[#7f1d1d] border border-black"></div>
+                    </div>
+                    <div class="mouth w-3 h-1 border-b border-black mt-1"></div>
+                    <div class="absolute top-5 -left-1 w-2 h-4 bg-white border border-black flex items-center justify-center"><div class="w-1 h-1 bg-red-500 rounded-full"></div></div>
+                    <div class="absolute top-5 -right-1 w-2 h-4 bg-white border border-black flex items-center justify-center"><div class="w-1 h-1 bg-red-500 rounded-full"></div></div>
+                </div>`;
+            }
+            if(exp === 'zenitsu') {
+                // ZENITSU: Yellow hair, worried expression
+                return `<div class="face relative w-full h-full flex flex-col items-center pt-3">
+                    <div class="absolute -top-2 w-[110%] h-4 bg-[#facc15] border-2 border-[#b45309] rounded-b-lg z-0"></div>
+                    <div class="eyes flex gap-3 z-10 relative">
+                        <div class="w-2 h-2 bg-white border border-black rounded-full flex items-center justify-center"><div class="w-1 h-1 bg-black rounded-full"></div></div>
+                        <div class="w-2 h-2 bg-white border border-black rounded-full flex items-center justify-center"><div class="w-1 h-1 bg-black rounded-full"></div></div>
+                    </div>
+                    <div class="absolute top-4 w-full flex justify-center gap-4">
+                        <div class="w-3 h-1 bg-black -rotate-12"></div>
+                        <div class="w-3 h-1 bg-black rotate-12"></div>
+                    </div>
+                    <div class="mouth w-2 h-2 rounded-full border-2 border-black bg-pink-300 mt-1"></div>
+                </div>`;
             }
 
             let eyes = `<div class="eye"></div><div class="eye"></div>`;
@@ -490,9 +573,13 @@
         }
 
         function msg(t) {
-            const b = document.getElementById('msg-box'); if(!b) return;
-            b.innerText = t; b.classList.add('scale-100'); 
-            setTimeout(() => b.classList.remove('scale-100'), 2500);
+            const b = document.createElement('div');
+            b.id = 'msg-box';
+            b.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-8 py-3 rounded-full z-[200] font-black text-xl transition-all scale-0';
+            b.innerText = t;
+            document.body.appendChild(b);
+            setTimeout(() => b.classList.add('scale-100'), 10);
+            setTimeout(() => { b.classList.remove('scale-100'); setTimeout(()=>b.remove(), 200); }, 2500);
         }
 
         function showAnnouncement(win) {
