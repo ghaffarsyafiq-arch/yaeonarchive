@@ -151,8 +151,6 @@
                     <span class="text-[10px] text-rose-500/80 font-mono tracking-[0.25em] leading-none mt-1 group-hover:text-rose-400 transition-colors">EXECUTE</span>
                 </div>
             </a>
-            
-            <!-- Source Link Removed -->
         </div>
     </header>
 
@@ -161,9 +159,8 @@
         <!-- Decoration: Center Light -->
         <div class="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-rose-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <!-- Centered Header Section (Text removed) -->
+        <!-- Centered Search Section -->
         <div class="flex flex-col items-center justify-center gap-6 mb-12 relative">
-            <!-- Search Only -->
             <div class="relative w-full max-w-md group">
                 <div class="absolute -inset-0.5 bg-gradient-to-r from-rose-500/20 to-purple-600/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
                 <div class="relative">
@@ -172,7 +169,6 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-rose-400/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <!-- Loader inside search bar -->
                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
                         <div id="loading-indicator" class="loader hidden"></div>
                     </div>
@@ -182,12 +178,12 @@
 
         <!-- Breadcrumb / Back Button -->
         <div id="breadcrumb-container" class="hidden max-w-6xl mx-auto mb-6 flex items-center gap-2 animate-[fadeIn_0.3s_ease-out_forwards]">
-            <button onclick="goBack()" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-wine-900/50 hover:bg-wine-800 text-rose-200/80 hover:text-white border border-rose-500/10 transition-all text-sm font-medium">
+            <button onclick="navigateUp()" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-wine-900/50 hover:bg-wine-800 text-rose-200/80 hover:text-white border border-rose-500/10 transition-all text-sm font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Back to Root
+                Back
             </button>
             <div class="h-px flex-1 bg-gradient-to-r from-rose-500/10 to-transparent"></div>
-            <span id="current-folder-name" class="text-rose-500/50 text-xs uppercase tracking-widest font-bold"></span>
+            <span id="current-folder-path" class="text-rose-500/50 text-xs uppercase tracking-widest font-bold truncate max-w-[200px] md:max-w-md"></span>
         </div>
 
         <!-- Gallery Grid -->
@@ -218,9 +214,7 @@
     <!-- Lock Modal -->
     <div id="lock-modal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-wine-950/90 border border-rose-500/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 relative overflow-hidden" id="lock-modal-content">
-            <!-- Decorative gradient in modal -->
             <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-rose-600/20 blur-2xl rounded-full pointer-events-none"></div>
-            
             <div class="flex flex-col items-center mb-4 text-center relative z-10">
                 <div class="w-10 h-10 bg-rose-500/10 rounded-full flex items-center justify-center mb-3 text-rose-500 border border-rose-500/20">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -228,14 +222,11 @@
                 <h3 class="text-lg font-bold text-rose-100">Restricted Access</h3>
                 <p class="text-rose-200/50 text-xs mt-1">This file is locked by administrator.</p>
             </div>
-
             <input type="password" id="lock-password" placeholder="Enter security code..." class="w-full bg-black/40 border border-rose-500/10 text-rose-100 text-sm rounded-lg p-3 mb-4 focus:ring-1 focus:ring-rose-500/50 focus:border-rose-500/50 outline-none transition-all placeholder-rose-200/20">
-            
             <div class="flex gap-3 relative z-10">
                 <button onclick="closeLockModal()" class="flex-1 py-2 rounded-lg border border-rose-500/10 text-rose-200/60 hover:bg-white/5 hover:text-rose-100 transition-colors text-sm font-medium">Cancel</button>
                 <button onclick="verifyPassword()" class="flex-1 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/20 transition-all text-sm font-medium">Unlock</button>
             </div>
-            
             <p id="lock-error" class="text-red-400 text-xs mt-3 text-center hidden">Access Denied: Incorrect Code</p>
         </div>
     </div>
@@ -253,54 +244,33 @@
         const emptyState = document.getElementById('empty-state');
         const loadingIndicator = document.getElementById('loading-indicator');
         const breadcrumb = document.getElementById('breadcrumb-container');
-        const currentFolderNameEl = document.getElementById('current-folder-name');
+        const currentFolderPathEl = document.getElementById('current-folder-path');
         
-        // Data Storage
-        let rootProjects = []; // Items to display in root
-        let folderContents = {}; // Map: 'FolderName' -> [items]
-        let currentLevel = 'root'; // 'root' or folderName
-
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // --- PASSWORD PROTECTION LOGIC ---
+        // --- PASSWORD LOGIC ---
         let pendingUrl = '';
-
         function handleLockedFile(e, url) {
             e.preventDefault();
             pendingUrl = url;
             const modal = document.getElementById('lock-modal');
             const content = document.getElementById('lock-modal-content');
-            
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            }, 10);
-            
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
             const passInput = document.getElementById('lock-password');
             passInput.value = '';
             document.getElementById('lock-error').classList.add('hidden');
             passInput.focus();
         }
-
         function closeLockModal() {
             const modal = document.getElementById('lock-modal');
             const content = document.getElementById('lock-modal-content');
-            
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            content.classList.remove('scale-100');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            modal.classList.add('opacity-0'); content.classList.add('scale-95'); content.classList.remove('scale-100');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
             pendingUrl = '';
         }
-
         function verifyPassword() {
-            const pass = document.getElementById('lock-password').value;
-            if (pass === 'yaeononly') {
+            if (document.getElementById('lock-password').value === 'yaeononly') {
                 const link = document.createElement('a');
                 link.href = pendingUrl;
                 document.body.appendChild(link);
@@ -314,23 +284,24 @@
                 setTimeout(() => errorMsg.classList.remove('animate-pulse'), 500);
             }
         }
-
-        document.getElementById('lock-password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') verifyPassword();
-        });
-        
-        document.getElementById('lock-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeLockModal();
-        });
+        document.getElementById('lock-password').addEventListener('keypress', function(e) { if (e.key === 'Enter') verifyPassword(); });
+        document.getElementById('lock-modal').addEventListener('click', function(e) { if (e.target === this) closeLockModal(); });
         // --- END PASSWORD LOGIC ---
 
         function formatTitle(filename) {
-            return filename
-                .replace('.html', '')
-                .split(/[-_]/)
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
+            return filename.charAt(0).toUpperCase() + filename.slice(1);
         }
+
+        // --- TREE STRUCTURE LOGIC ---
+        // Root node
+        let fileSystem = {
+            name: 'Root',
+            type: 'folder',
+            children: {}
+        };
+        
+        // Stack to track navigation history: [rootNode, folderA, subFolderB]
+        let currentPathStack = [];
 
         async function fetchProjectsFromGitHub() {
             loadingIndicator.classList.remove('hidden');
@@ -343,14 +314,11 @@
                 const data = await response.json();
                 const htmlFiles = data.filter(file => file.name.endsWith('.html'));
 
-                const allFiles = htmlFiles.map(file => ({
-                    title: formatTitle(file.name),
-                    fileName: file.name, 
-                    path: `${CONFIG.folder}/${file.name}`,
-                    type: 'file'
-                }));
-
-                organizeFiles(allFiles);
+                buildFileSystem(htmlFiles);
+                
+                // Initialize view at root
+                currentPathStack = [fileSystem];
+                renderCurrentPath();
 
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -363,204 +331,211 @@
             }
         }
 
-        // Modified Logic to handle Dynamic Folders (Prefix_Suffix)
-        function organizeFiles(files) {
-            rootProjects = [];
-            folderContents = {};
-
-            const gameKeywords = ['yaeonsit', 'game'];
+        function buildFileSystem(files) {
+            // Reset system
+            fileSystem = { name: 'Root', type: 'folder', children: {} };
 
             files.forEach(file => {
-                const fileNameLower = file.fileName.toLowerCase();
-                const rawName = file.fileName.replace('.html', '');
+                const rawName = file.name.replace('.html', '');
+                let parts = rawName.split('_').map(s => s.trim()).filter(s => s.length > 0);
                 
-                // 1. GAME CHECK (Priority 1)
-                const isGameFile = gameKeywords.some(keyword => fileNameLower.includes(keyword));
-                if (isGameFile) {
-                    if (!folderContents['Game']) folderContents['Game'] = [];
-                    // Remove "Game" keyword from title inside the folder
-                    let newTitle = file.title.replace(/\bGame\b/gi, '').trim().replace(/\s+/g, ' ');
-                    folderContents['Game'].push({ ...file, title: newTitle });
-                    return;
+                // Apply Title Formatting
+                parts = parts.map(formatTitle);
+
+                // Check for Game/Yaeonsit keywords (Legacy Support & Priority)
+                const lowerName = file.name.toLowerCase();
+                const isGameKeyword = lowerName.includes('game') || lowerName.includes('yaeonsit');
+
+                // If it's a game file but DOESN'T have underscore structure yet, force it into "Game" folder
+                // If it HAS underscore structure (e.g. Game_Something), the logic below handles it naturally.
+                if (parts.length === 1 && isGameKeyword && parts[0] !== 'Game') {
+                    parts.unshift('Game');
                 }
 
-                // 2. DYNAMIC FOLDER CHECK (Prefix_Suffix)
-                if (rawName.includes('_')) {
-                    const parts = rawName.split('_');
-                    // Ensure we have valid parts
-                    if (parts.length >= 2 && parts[0].trim().length > 0) {
-                        const folderName = formatTitle(parts[0].trim());
-                        // Join remaining parts for file title
-                        const fileTitle = formatTitle(parts.slice(1).join('_').trim());
+                // Traverse and build tree
+                let currentNode = fileSystem;
+
+                parts.forEach((part, index) => {
+                    const isLast = index === parts.length - 1;
+
+                    if (isLast) {
+                        // It's a file
+                        // CHECK IF A FOLDER WITH THIS NAME ALREADY EXISTS (Collision Check)
+                        if (currentNode.children[part] && currentNode.children[part].type === 'folder') {
+                            // Folder exists, so we treat this file as a resource inside, but can't display both as root nodes.
+                            // For this visualizer, we assume the folder takes precedence for navigation.
+                        } else {
+                            currentNode.children[part] = {
+                                title: part,
+                                type: 'file',
+                                path: `${CONFIG.folder}/${file.name}`,
+                                fileName: file.name
+                            };
+                        }
+                    } else {
+                        // It's a directory path segment
+                        if (!currentNode.children[part]) {
+                            // Create folder if doesn't exist
+                            currentNode.children[part] = {
+                                title: part,
+                                type: 'folder',
+                                children: {},
+                                count: 0
+                            };
+                        } else if (currentNode.children[part].type === 'file') {
+                            // *** CRITICAL FIX: CONVERT FILE TO FOLDER ***
+                            // If a node was previously created as a 'file' (e.g. 'AIUEO.html') 
+                            // but now we need to go inside it (e.g. 'AIUEO_Child.html'),
+                            // we must convert it to a folder to avoid crash.
+                            currentNode.children[part].type = 'folder';
+                            currentNode.children[part].children = {};
+                            currentNode.children[part].count = 0; // Will count children starting now
+                            // We purposefully overwrite the file properties to make it a container
+                        }
                         
-                        if (!folderContents[folderName]) folderContents[folderName] = [];
-                        folderContents[folderName].push({ ...file, title: fileTitle });
-                        return;
+                        // Increment count and move deeper
+                        currentNode.children[part].count++;
+                        currentNode = currentNode.children[part];
                     }
-                }
-
-                // 3. ROOT FILES
-                rootProjects.push(file);
-            });
-
-            // Reconstruct Root List: [Game Folder] -> [Dynamic Folders] -> [Files]
-            
-            // Get Dynamic Folders
-            const dynamicFolders = Object.keys(folderContents)
-                .filter(k => k !== 'Game')
-                .map(key => ({
-                    title: key,
-                    fileName: key.toLowerCase().replace(/\s/g, '_') + "_folder",
-                    type: "folder",
-                    count: folderContents[key].length,
-                    specialType: 'dynamic'
-                }));
-            
-            // Prepend Dynamic Folders to Root
-            dynamicFolders.forEach(f => rootProjects.unshift(f));
-
-            // Prepend Game Folder to Root (so it's always first)
-            if (folderContents['Game'] && folderContents['Game'].length > 0) {
-                rootProjects.unshift({
-                    title: "Game",
-                    fileName: "game_folder",
-                    type: "folder",
-                    count: folderContents['Game'].length,
-                    specialType: 'game'
                 });
-            }
-
-            renderProjects(rootProjects);
+            });
         }
 
-        function openFolder(folderName) {
-            if (folderContents[folderName]) {
-                currentLevel = folderName;
-                renderProjects(folderContents[folderName]);
-                
-                // Update Breadcrumb UI
-                breadcrumb.classList.remove('hidden');
-                // Use folder name for breadcrumb
-                currentFolderNameEl.textContent = folderName.toUpperCase() + " DIRECTORY";
-            }
-        }
-
-        function goBack() {
-            currentLevel = 'root';
-            searchInput.value = ''; // Clear search when going back
-            renderProjects(rootProjects);
+        // Navigation Functions
+        function navigateTo(folderName) {
+            const currentFolder = currentPathStack[currentPathStack.length - 1];
+            const nextFolder = currentFolder.children[folderName];
             
-            // Hide Breadcrumb
-            breadcrumb.classList.add('hidden');
+            if (nextFolder && nextFolder.type === 'folder') {
+                currentPathStack.push(nextFolder);
+                renderCurrentPath();
+            }
+        }
+
+        function navigateUp() {
+            if (currentPathStack.length > 1) {
+                currentPathStack.pop();
+                renderCurrentPath();
+            }
         }
 
         function resetToRoot() {
-            if(currentLevel !== 'root') goBack();
+            if (currentPathStack.length > 1) {
+                currentPathStack = [fileSystem];
+                renderCurrentPath();
+            }
         }
 
-        function renderProjects(items) {
+        function renderCurrentPath() {
+            const currentFolder = currentPathStack[currentPathStack.length - 1];
+            // Safety check in case children is undefined (though buildFileSystem protects this now)
+            const items = currentFolder.children ? Object.values(currentFolder.children) : [];
+            
+            searchInput.value = ''; 
+
+            updateBreadcrumb();
+            renderItems(items);
+        }
+
+        function updateBreadcrumb() {
+            if (currentPathStack.length > 1) {
+                breadcrumb.classList.remove('hidden');
+                const pathNames = currentPathStack.slice(1).map(n => n.title.toUpperCase());
+                currentFolderPathEl.textContent = pathNames.join(' > ');
+            } else {
+                breadcrumb.classList.add('hidden');
+            }
+        }
+
+        function renderItems(items) {
             container.innerHTML = '';
             
+            items.sort((a, b) => {
+                if (a.type === b.type) return a.title.localeCompare(b.title);
+                return a.type === 'folder' ? -1 : 1;
+            });
+
             if (items.length === 0) {
                 container.classList.add('hidden');
                 emptyState.classList.remove('hidden');
-                
-                if (currentLevel !== 'root') {
-                    document.getElementById('empty-title').innerText = "Empty Folder";
-                    document.getElementById('empty-desc').innerText = "No files found in this directory.";
-                } else {
-                    document.getElementById('empty-title').innerText = "Nothing here";
-                    document.getElementById('empty-desc').innerText = "Directory is empty.";
-                }
+                document.getElementById('empty-title').innerText = "Empty Directory";
+                document.getElementById('empty-desc').innerText = "No files found here.";
                 return;
             }
             
             container.classList.remove('hidden');
             emptyState.classList.add('hidden');
 
-            items.forEach((project, index) => {
-                // Determine if it's a folder or a file
-                const isFolder = project.type === 'folder';
-                const isLocked = !isFolder && project.fileName.toLowerCase() === 'contoh.html';
-                
-                // Configure Click Action & Icon
+            const isGameContext = currentPathStack.some(node => node.title === 'Game');
+
+            items.forEach((item, index) => {
+                const isFolder = item.type === 'folder';
+                const isLocked = !isFolder && item.fileName && item.fileName.toLowerCase() === 'contoh.html';
+
                 let actionAttr = '';
                 let btnText = '';
                 let iconHtml = '';
-                
+                let dotColorClass = '';
+
                 if (isFolder) {
-                    actionAttr = `onclick="openFolder('${project.title}')"`;
-                    btnText = 'Execute'; 
+                    actionAttr = `onclick="navigateTo('${item.title}')"`;
+                    btnText = 'Execute';
                     
-                    if (project.specialType === 'game') {
-                        // GAMEPAD ICON (Game Folder)
+                    if (item.title === 'Game' || (isGameContext && isFolder)) {
                         iconHtml = `<div class="text-rose-400 opacity-90" title="Game Directory">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                             </svg>
                         </div>`;
+                        dotColorClass = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
                     } else {
-                        // DYNAMIC FOLDER ICON (Stack/Collection)
                         iconHtml = `<div class="text-rose-400 opacity-90" title="Collection">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>`;
+                        dotColorClass = 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]';
                     }
                 } else {
-                    // File Logic
                     actionAttr = isLocked 
-                        ? `onclick="handleLockedFile(event, '${project.path}')" href="#"` 
-                        : `href="${project.path}"`;
+                        ? `onclick="handleLockedFile(event, '${item.path}')" href="#"` 
+                        : `href="${item.path}"`;
                     btnText = isLocked ? 'Unlock & Execute' : 'Execute';
 
                     if (isLocked) {
-                        // Locked Icon
                         iconHtml = `<div class="text-rose-500 opacity-80" title="Locked"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>`;
-                    } else if (currentLevel === 'Game') {
-                        // GAME FILE ICON (Cartridge/Chip/Disc)
+                        dotColorClass = 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
+                    } else if (isGameContext) {
                         iconHtml = `<div class="text-emerald-400/80" title="Game Cartridge"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg></div>`;
-                    } else if (currentLevel !== 'root') {
-                        // DYNAMIC FOLDER FILE ICON (Document/Module)
-                        iconHtml = `<div class="text-blue-400/80" title="Document"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>`;
+                        dotColorClass = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
                     } else {
-                        // STANDARD SCRIPT/FILE ICON
-                        iconHtml = `<div class="text-rose-200/40 group-hover:text-rose-200/80 transition-colors" title="Script File"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>`;
+                        iconHtml = `<div class="text-blue-400/80" title="Document"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>`;
+                        dotColorClass = 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]';
                     }
+                }
+
+                if (currentPathStack.length === 1 && !isFolder && !isGameContext) {
+                    dotColorClass = 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
+                    iconHtml = `<div class="text-rose-200/40 group-hover:text-rose-200/80 transition-colors" title="Script File"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>`;
                 }
 
                 const card = document.createElement('div');
                 card.style.animationDelay = `${index * 50}ms`;
                 card.className = 'glass-card rounded-xl p-5 flex flex-col group animate-[fadeIn_0.5s_ease-out_forwards] opacity-0 cursor-default';
                 
-                // Add Folder specific styling
                 const titleClass = isFolder ? "text-xl font-bold text-rose-50" : "text-lg font-medium text-rose-100";
                 
-                // Color Logic for Dots
-                let dotColorClass = 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
-                if (isFolder) {
-                    if (project.specialType === 'game') {
-                        dotColorClass = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
-                    } else {
-                        dotColorClass = 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]';
-                    }
-                } else if (currentLevel === 'Game') {
-                    dotColorClass = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
-                } else if (currentLevel !== 'root') {
-                    dotColorClass = 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]';
-                }
-
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-3 relative z-10">
                         <div class="w-1.5 h-1.5 rounded-full ${dotColorClass}"></div>
                         ${iconHtml}
                     </div>
                     
-                    <h3 class="${titleClass} group-hover:text-white transition-colors relative z-10 truncate mb-1 tracking-tight" title="${project.title}">
-                        ${project.title}
+                    <h3 class="${titleClass} group-hover:text-white transition-colors relative z-10 truncate mb-1 tracking-tight" title="${item.title}">
+                        ${item.title}
                     </h3>
                     
-                    ${isFolder ? `<p class="text-xs text-rose-200/40 mb-5 relative z-10">${project.count} items inside</p>` : `<div class="mb-6"></div>`}
+                    ${isFolder ? `<p class="text-xs text-rose-200/40 mb-5 relative z-10">${item.count} items inside</p>` : `<div class="mb-6"></div>`}
                     
                     <a ${actionAttr} class="mt-auto flex items-center justify-center w-full py-2.5 rounded-lg bg-wine-900/40 border-rose-500/10 hover:bg-rose-600 hover:border-rose-500/30 group/btn transition-all duration-300 relative z-10 overflow-hidden cursor-pointer">
                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]"></div>
@@ -591,18 +566,19 @@
         searchInput.addEventListener('input', (e) => {
             const keyword = e.target.value.toLowerCase();
             
-            // Search in the CURRENT level (Root or specific Folder)
-            let sourceArray = [];
-            if (currentLevel === 'root') {
-                sourceArray = rootProjects;
-            } else if (folderContents[currentLevel]) {
-                sourceArray = folderContents[currentLevel];
+            if (!keyword) {
+                renderCurrentPath();
+                return;
             }
+
+            const currentFolder = currentPathStack[currentPathStack.length - 1];
+            // Safety check for search as well
+            const items = currentFolder.children ? Object.values(currentFolder.children) : [];
             
-            const filtered = sourceArray.filter(project => 
-                project.title.toLowerCase().includes(keyword)
+            const filtered = items.filter(item => 
+                item.title.toLowerCase().includes(keyword)
             );
-            renderProjects(filtered);
+            renderItems(filtered);
         });
     </script>
 </body>
