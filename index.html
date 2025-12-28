@@ -377,7 +377,16 @@
                 const isGameFile = gameKeywords.some(keyword => fileNameLower.includes(keyword));
 
                 if (isGameFile) {
-                    gameFolderContent.push(file);
+                    // REMOVE "Game" from title for files inside the Game folder
+                    // Replace "Game" (case insensitive) with empty string and trim extra spaces
+                    let newTitle = file.title.replace(/\bGame\b/gi, '').trim();
+                    // Ensure no double spaces are left
+                    newTitle = newTitle.replace(/\s+/g, ' ');
+
+                    gameFolderContent.push({
+                        ...file,
+                        title: newTitle
+                    });
                 } else {
                     rootProjects.push(file);
                 }
