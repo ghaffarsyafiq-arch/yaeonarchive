@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Branch Office</title>
+    <style>
+        body {
+            background: #064e3b; /* Emerald Deep */
+            color: #ecfdf5;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            text-align: center;
+        }
+        .card {
+            border: 2px solid #10b981;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(0,0,0,0.3);
+        }
+        .money-flow {
+            font-size: 2em;
+            color: #34d399;
+            margin: 20px 0;
+        }
+        .status-light {
+            width: 12px; height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #10b981;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .btn-upgrade {
+            background: #10b981;
+            border: none;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3><span class="status-light"></span> SUBSIDIARY ACTIVE</h3>
+        <p>Current Revenue Stream:</p>
+        <div class="money-flow">+$<span id="pps">10</span>/sec</div>
+        <button class="btn-upgrade" onclick="upgrade()">UPGRADE BRANCH (-$500)</button>
+        <p style="font-size: 0.7em; margin-top: 15px; opacity: 0.6;">Close this tab to stop business.</p>
+    </div>
+
+    <script>
+        let pps = 10;
+        const channel = new BroadcastChannel('rich21_core');
+
+        // Auto-income every 2 seconds to simulate "business time"
+        setInterval(() => {
+            channel.postMessage({ type: 'PROFIT', amount: pps });
+        }, 2000);
+
+        function upgrade() {
+            // Kita kirim request minus ke core
+            channel.postMessage({ type: 'PROFIT', amount: -500 });
+            pps += 15;
+            document.getElementById('pps').innerText = pps;
+        }
+
+        channel.onmessage = (e) => {
+            if(e.data.type === 'NEW_DAY') {
+                // Flash effect when new day starts
+                document.body.style.backgroundColor = '#065f46';
+                setTimeout(() => document.body.style.backgroundColor = '#064e3b', 200);
+            }
+        }
+    </script>
+</body>
+</html>
