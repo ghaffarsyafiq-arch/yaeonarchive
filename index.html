@@ -53,19 +53,67 @@
         body {
             background-color: #0f0205; /* Base Dark Color */
             color: #ffe4e6; /* Rose-100 text for better contrast */
-            /* Gradient Mesh Effect + Subtle Grid */
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                radial-gradient(at 0% 0%, rgba(136, 19, 55, 0.3) 0px, transparent 50%),    
-                radial-gradient(at 100% 0%, rgba(88, 28, 135, 0.2) 0px, transparent 50%),  
-                radial-gradient(at 100% 100%, rgba(159, 18, 57, 0.2) 0px, transparent 50%), 
-                radial-gradient(at 0% 100%, rgba(76, 5, 25, 0.4) 0px, transparent 50%);
-            background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-            background-attachment: fixed;
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
         
+        /* --- BACKGROUND LAYERS --- */
+        
+        /* 1. Grid Pattern Layer (Separate Div for Better Performance) */
+        .bg-grid-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2; /* Behind blobs */
+            background-image: url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 25 Q 12.5 20 25 25 T 50 25' stroke='rgba(255, 255, 255, 0.05)' fill='none' stroke-width='1'/%3E%3Cpath d='M25 0 Q 30 12.5 25 25 T 25 50' stroke='rgba(255, 255, 255, 0.05)' fill='none' stroke-width='1'/%3E%3C/svg%3E");
+            background-size: 50px 50px;
+            animation: gridFlow 20s linear infinite; /* Dipercepat ke 20s */
+            pointer-events: none;
+        }
+
+        /* 2. Wave Blobs (Styling) */
+        .wave-blob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            will-change: transform, border-radius; 
+            filter: blur(80px);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: -1; /* Behind content, front of grid */
+        }
+
+        /* --- ANIMATIONS --- */
+        
+        @keyframes gridFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        @keyframes fluid-morph {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            }
+            33% {
+                transform: translate(-50%, -50%) rotate(120deg) scale(1.2);
+                border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+            }
+            66% {
+                transform: translate(-50%, -50%) rotate(240deg) scale(0.9);
+                border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg) scale(1);
+                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            }
+        }
+
+        /* --- UI COMPONENTS --- */
+
         .glass-panel {
             background: rgba(20, 5, 10, 0.7);
             backdrop-filter: blur(16px);
@@ -82,7 +130,6 @@
             overflow: hidden;
         }
         
-        /* Subtle glow effect on hover */
         .glass-card::before {
             content: '';
             position: absolute;
@@ -121,7 +168,7 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f0205; }
@@ -130,6 +177,24 @@
     </style>
 </head>
 <body class="flex flex-col antialiased selection:bg-rose-500/30 selection:text-rose-200">
+
+    <!-- LAYER 1: Animated Grid Background -->
+    <div class="bg-grid-layer"></div>
+
+    <!-- LAYER 2: Background Wave Animation Blobs -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <!-- Wave 1: Primary Rose Current (Speed: 25s) -->
+        <div class="wave-blob w-[90vw] h-[90vw] md:w-[60vw] md:h-[60vw] bg-gradient-to-tr from-rose-900/40 via-purple-900/20 to-transparent" 
+             style="animation: fluid-morph 25s linear infinite; mix-blend-mode: screen;"></div>
+        
+        <!-- Wave 2: Secondary Dark Current (Speed: 35s Reverse) -->
+        <div class="wave-blob w-[95vw] h-[95vw] md:w-[65vw] md:h-[65vw] bg-gradient-to-bl from-wine-900/50 via-rose-950/30 to-transparent" 
+             style="animation: fluid-morph 35s linear infinite reverse; mix-blend-mode: overlay;"></div>
+        
+        <!-- Wave 3: Deep Accent Current (Speed: 30s) -->
+        <div class="wave-blob w-[80vw] h-[80vw] md:w-[50vw] md:h-[50vw] bg-gradient-to-r from-purple-800/20 to-rose-800/10" 
+             style="animation: fluid-morph 30s linear infinite; opacity: 0.3;"></div>
+    </div>
 
     <!-- Header / Navbar -->
     <header class="fixed top-0 z-50 w-full border-b border-rose-500/5 bg-wine-950/80 backdrop-blur-xl transition-all duration-300">
@@ -156,8 +221,8 @@
 
     <main class="flex-grow container mx-auto px-6 pt-32 pb-20 relative z-10">
         
-        <!-- Decoration: Center Light -->
-        <div class="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-rose-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <!-- Decoration: Center Light (Refined) -->
+        <div class="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-rose-600/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
 
         <!-- Centered Search Section -->
         <div class="flex flex-col items-center justify-center gap-6 mb-12 relative">
