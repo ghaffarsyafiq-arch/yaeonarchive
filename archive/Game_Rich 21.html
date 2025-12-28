@@ -1,78 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Branch Office</title>
+    <title>Unit Usaha</title>
     <style>
         body {
-            background: #064e3b; /* Emerald Deep */
-            color: #ecfdf5;
             font-family: 'Courier New', monospace;
-            padding: 20px;
+            background: #eee;
+            color: #333;
             text-align: center;
-        }
-        .card {
-            border: 2px solid #10b981;
             padding: 20px;
-            border-radius: 15px;
-            background: rgba(0,0,0,0.3);
+            transition: background 0.5s;
         }
-        .money-flow {
-            font-size: 2em;
-            color: #34d399;
-            margin: 20px 0;
-        }
-        .status-light {
-            width: 12px; height: 12px;
-            background: #10b981;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px #10b981;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .btn-upgrade {
-            background: #10b981;
-            border: none;
+        .container { border: 2px solid #333; padding: 20px; background: white; }
+        h2 { text-transform: uppercase; margin: 0; }
+        .stat { font-size: 2em; font-weight: bold; margin: 10px 0; color: green; }
+        .danger-mode {
+            background: #ff0000;
             color: white;
-            padding: 10px;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+            animation: shake 0.5s infinite;
         }
+        .danger-mode .container { background: #ffcccc; color: red; border-color: red; }
+        .danger-mode .stat { color: red; }
+        
+        button { padding: 10px 20px; cursor: pointer; font-size: 1.2em; font-weight: bold;}
+        
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -1px) rotate(0deg); } }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h3><span class="status-light"></span> SUBSIDIARY ACTIVE</h3>
-        <p>Current Revenue Stream:</p>
-        <div class="money-flow">+$<span id="pps">10</span>/sec</div>
-        <button class="btn-upgrade" onclick="upgrade()">UPGRADE BRANCH (-$500)</button>
-        <p style="font-size: 0.7em; margin-top: 15px; opacity: 0.6;">Close this tab to stop business.</p>
+
+    <div class="container">
+        <h2 id="bizType">Loading...</h2>
+        <div class="stat" id="indicator">+$0</div>
+        <p id="statusMsg">Beroperasi Normal</p>
+        <button onclick="fixProblem()" id="fixBtn" style="display:none">PERBAIKI ($50)</button>
     </div>
 
     <script>
-        let pps = 10;
-        const channel = new BroadcastChannel('rich21_core');
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type') || 'cafe';
+        const channel = new BroadcastChannel('rich21_luna');
 
-        // Auto-income every 2 seconds to simulate "business time"
+        // Config Bisnis
+        const config = {
+            cafe: { name: "Kafe Kopi", profit: 15, risk: 0.05 },
+            crypto: { name: "Mining Rig", profit: 80, risk: 0.2 }
+        };
+
+        const biz = config[type];
+        document.getElementById('bizType').innerText = biz.name;
+        
+        let isCritical = false;
+
+        // Loop Usaha
         setInterval(() => {
-            channel.postMessage({ type: 'PROFIT', amount: pps });
-        }, 2000);
+            if (isCritical) {
+                // Kalau rusak, malah rugi
+                let loss = -biz.profit * 2;
+                channel.postMessage({ type: 'INCOME', amount: loss });
+                document.getElementById('indicator').innerText = loss;
+            } else {
+                // Normal
+                channel.postMessage({ type: 'INCOME', amount: biz.profit });
+                document.getElementById('indicator').innerText = "+$" + biz.profit;
+                
+                // Cek kemungkinan bencana acak
+                if (Math.random() < biz.risk) triggerDisaster();
+            }
+        }, 1500);
 
-        function upgrade() {
-            // Kita kirim request minus ke core
-            channel.postMessage({ type: 'PROFIT', amount: -500 });
-            pps += 15;
-            document.getElementById('pps').innerText = pps;
+        function triggerDisaster() {
+            isCritical = true;
+            document.body.classList.add('danger-mode');
+            document.getElementById('statusMsg').innerText = "RUSAK! / KENA HACK!";
+            document.getElementById('fixBtn').style.display = 'inline-block';
+            
+            // Lapor ke LUNA
+            channel.postMessage({ 
+                type: 'CRITICAL_EVENT', 
+                msg: `GAWAT! ${biz.name} bermasalah! Cek Tab-nya sekarang!` 
+            });
         }
 
+        function fixProblem() {
+            isCritical = false;
+            document.body.classList.remove('danger-mode');
+            document.getElementById('statusMsg').innerText = "Beroperasi Normal";
+            document.getElementById('fixBtn').style.display = 'none';
+            channel.postMessage({ type: 'INCOME', amount: -50 }); // Biaya perbaikan
+        }
+
+        // Deteksi Tutup Tab
+        window.onbeforeunload = () => {
+            channel.postMessage({ type: 'TAB_CLOSED' });
+        };
+        
+        // Terima info ganti hari
         channel.onmessage = (e) => {
-            if(e.data.type === 'NEW_DAY') {
-                // Flash effect when new day starts
-                document.body.style.backgroundColor = '#065f46';
-                setTimeout(() => document.body.style.backgroundColor = '#064e3b', 200);
+            if(e.data.type === 'NEXT_DAY') {
+                // Reset status tiap hari
+                isCritical = false;
+                document.body.classList.remove('danger-mode');
+                document.getElementById('fixBtn').style.display = 'none';
             }
         }
     </script>
