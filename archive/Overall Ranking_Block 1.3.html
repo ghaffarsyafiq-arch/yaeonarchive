@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Sistem Kontrol dan Regulasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            min-height: 100vh;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            background-color: #111827;
+        }
+
+        /* BACKGROUND MESH: Violet & Gray Mist */
+        .mesh-background {
+            background-color: #1f1f2e;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.4) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(107, 114, 128, 0.3) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(76, 29, 149, 0.4) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(156, 163, 175, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(31, 41, 55, 0.5) 0px, transparent 50%);
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        /* GLASS CARD STYLING */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        /* PODIUM ANIMATION */
+        .podium-1 { 
+            margin-bottom: 2.5rem; 
+            z-index: 10; 
+            border-color: rgba(250, 204, 21, 0.5); 
+            background: linear-gradient(180deg, rgba(250, 204, 21, 0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+        .podium-2 { margin-bottom: -1rem; z-index: 5; border-color: rgba(226, 232, 240, 0.3); }
+        .podium-3 { margin-bottom: -3rem; z-index: 1; border-color: rgba(180, 83, 9, 0.3); }
+        
+        @media (max-width: 768px) {
+            .podium-1, .podium-2, .podium-3 { margin-bottom: 1rem; }
+        }
+
+        /* BADGES */
+        .badge-title { 
+            font-size: 0.65rem; 
+            letter-spacing: 0.05em; 
+            text-transform: uppercase; 
+            font-weight: 700; 
+            padding: 0.25rem 0.5rem; 
+            border-radius: 9999px; 
+            border: 1px solid; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.25rem; 
+            white-space: nowrap;
+        }
+        
+        .bg-apex { background: rgba(250, 204, 21, 0.15); color: #fef08a; border-color: rgba(250, 204, 21, 0.4); }
+        .bg-violet { background: rgba(139, 92, 246, 0.15); color: #ddd6fe; border-color: rgba(139, 92, 246, 0.4); }
+        .bg-rose { background: rgba(244, 63, 94, 0.15); color: #fecdd3; border-color: rgba(244, 63, 94, 0.4); }
+        .bg-cyan { background: rgba(34, 211, 238, 0.15); color: #cffafe; border-color: rgba(34, 211, 238, 0.4); }
+        .bg-gray { background: rgba(156, 163, 175, 0.15); color: #e5e7eb; border-color: rgba(156, 163, 175, 0.4); }
+
+        /* RANK CHANGE INDICATORS */
+        .rank-up { color: #4ade80; } /* Green */
+        .rank-down { color: #f87171; } /* Red */
+        .rank-same { color: #9ca3af; } /* Gray */
+
+        /* MODAL */
+        #modal.show { opacity: 1; pointer-events: auto; }
+        #modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+        #modal.show #modal-content { transform: scale(1); }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+</head>
+<body class="mesh-background text-gray-100">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-black/30 border-b border-white/5 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="p-2.5 bg-gradient-to-br from-violet-600 to-purple-700 rounded-xl shadow-lg shadow-violet-900/50">
+                    <i class="fa-solid fa-brain text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-violet-200 to-gray-200">Sistem Kontrol & Regulasi</h1>
+                    <p class="text-xs text-gray-400 font-medium tracking-wide">BLOK SB25-113 • ANGKATAN 2025/2026</p>
+                </div>
+            </div>
+            
+            <div class="relative w-full md:w-80 group">
+                <input type="text" id="searchInput" class="w-full bg-white/5 border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all group-hover:bg-white/10" placeholder="Cari Nama, NIM, atau Nilai...">
+                <i class="fa-solid fa-search absolute left-3.5 top-3 text-gray-500 group-hover:text-violet-400 transition-colors"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+
+        <!-- PODIUM SECTION -->
+        <section id="podium-container" class="relative pt-10">
+            <div class="flex justify-center items-center h-64">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500"></div>
+            </div>
+        </section>
+
+        <!-- STATS & LEGEND -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Total Students</p>
+                    <p class="text-2xl font-bold text-white" id="stat-total">0</p>
+                </div>
+                <div class="h-10 w-10 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-300"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Highest Score</p>
+                    <p class="text-2xl font-bold text-yellow-400" id="stat-high">0</p>
+                </div>
+                <div class="h-10 w-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400"><i class="fa-solid fa-trophy"></i></div>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Cum Laude (A)</p>
+                    <p class="text-2xl font-bold text-green-400" id="stat-a">0</p>
+                </div>
+                <div class="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400"><i class="fa-solid fa-medal"></i></div>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex flex-col justify-center">
+                <p class="text-[10px] text-gray-400 uppercase mb-2 tracking-widest">Indikator Perubahan</p>
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="flex items-center text-gray-300"><i class="fa-solid fa-arrow-up text-green-400 mr-1"></i> Naik</span>
+                    <span class="flex items-center text-gray-300"><i class="fa-solid fa-arrow-down text-red-400 mr-1"></i> Turun</span>
+                    <span class="flex items-center text-gray-300"><i class="fa-solid fa-minus text-gray-400 mr-1"></i> Tetap</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN GRID -->
+        <section>
+            <div class="flex justify-between items-end mb-6 border-b border-white/5 pb-4">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i class="fa-solid fa-list-ul mr-3 text-violet-500"></i> Peringkat Angkatan
+                </h2>
+                <span class="text-xs text-gray-500 italic">Klik kartu untuk detail statistik</span>
+            </div>
+            
+            <div id="student-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Cards Injected Here -->
+            </div>
+            
+            <div id="not-found" class="hidden text-center py-20">
+                <div class="inline-block p-4 rounded-full bg-white/5 mb-4">
+                    <i class="fa-solid fa-ghost text-4xl text-gray-500"></i>
+                </div>
+                <p class="text-gray-400 font-medium">Data tidak ditemukan.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL -->
+    <div id="modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="modal-content" class="bg-[#1e1e2e] w-full max-w-5xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white z-10 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            
+            <div class="w-full md:w-2/5 p-8 bg-gradient-to-br from-[#111827] to-[#1f1f2e] border-r border-white/5 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+
+                <div>
+                    <div class="flex justify-between items-start mb-6">
+                        <div id="modal-rank-badge" class="inline-flex items-center px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 text-xs font-bold border border-violet-500/30">
+                            RANK #1
+                        </div>
+                        <div id="modal-change-badge" class="text-sm font-medium"></div>
+                    </div>
+                    
+                    <h2 id="modal-name" class="text-3xl font-bold text-white mb-2 leading-tight">Student Name</h2>
+                    <p id="modal-nim" class="text-sm text-gray-500 font-mono mb-8 flex items-center"><i class="fa-regular fa-id-card mr-2"></i> G1A0XXXXX</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Nilai Akhir</span>
+                            <span id="modal-na" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">00.00</span>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Huruf Mutu</span>
+                            <span id="modal-grade" class="text-3xl font-black text-green-400">A</span>
+                        </div>
+                    </div>
+
+                    <div id="modal-titles" class="flex flex-wrap gap-2 content-start"></div>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-white/5">
+                    <p class="text-xs text-gray-500 italic text-center">"Sistem Kontrol dan Regulasi"</p>
+                </div>
+            </div>
+
+            <div class="w-full md:w-3/5 p-8 bg-[#181825] flex flex-col items-center justify-center relative">
+                <h3 class="text-sm font-semibold text-gray-400 mb-6 uppercase tracking-widest flex items-center">
+                    <i class="fa-solid fa-chart-radar mr-2 text-violet-500"></i> Analisis Kompetensi
+                </h3>
+                <div class="w-full h-72 md:h-96 relative">
+                    <canvas id="spiderwebChart"></canvas>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2 w-full mt-6">
+                    <div class="text-center">
+                        <div class="text-[10px] text-gray-500">CBT (50%)</div>
+                        <div class="text-sm font-bold text-violet-300" id="stat-cbt">-</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-gray-500">SOCA (20%)</div>
+                        <div class="text-sm font-bold text-violet-300" id="stat-soca">-</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-gray-500">Praktikum</div>
+                        <div class="text-sm font-bold text-violet-300" id="stat-praktikum">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA BLOK 1.2 (PREVIOUS RANKING) ---
+        // Diekstrak dari "Overall Ranking_Block 1.2.html"
+        const block12Data = [
+            { nim: "G1A025025", na: 92.61 }, { nim: "G1A025017", na: 87.29 }, { nim: "G1A025045", na: 86.43 }, { nim: "G1A025078", na: 85.61 },
+            { nim: "G1A025029", na: 85.25 }, { nim: "G1A025031", na: 85.14 }, { nim: "G1A025095", na: 84.93 }, { nim: "G1A025013", na: 84.12 },
+            { nim: "G1A025006", na: 83.80 }, { nim: "G1A025145", na: 83.79 }, { nim: "G1A025105", na: 83.68 }, { nim: "G1A025106", na: 82.67 },
+            { nim: "G1A025068", na: 82.45 }, { nim: "G1A025100", na: 81.30 }, { nim: "G1A025014", na: 80.86 }, { nim: "G1A025092", na: 80.61 },
+            { nim: "G1A025012", na: 80.55 }, { nim: "G1A025109", na: 78.84 }, { nim: "G1A025055", na: 78.17 }, { nim: "G1A025104", na: 77.60 },
+            { nim: "G1A025054", na: 77.58 }, { nim: "G1A025079", na: 77.41 }, { nim: "G1A025016", na: 77.29 }, { nim: "G1A025065", na: 77.10 },
+            { nim: "G1A025135", na: 76.81 }, { nim: "G1A025084", na: 76.64 }, { nim: "G1A025018", na: 76.40 }, { nim: "G1A025056", na: 75.87 },
+            { nim: "G1A025113", na: 75.57 }, { nim: "G1A025151", na: 75.47 }, { nim: "G1A025010", na: 75.30 }, { nim: "G1A025072", na: 75.11 },
+            { nim: "G1A025108", na: 74.70 }, { nim: "G1A025033", na: 74.73 }, { nim: "G1A025110", na: 74.46 }, { nim: "G1A025051", na: 74.33 },
+            { nim: "G1A025114", na: 74.21 }, { nim: "G1A025082", na: 73.87 }, { nim: "G1A025028", na: 73.46 }, { nim: "G1A025102", na: 73.13 },
+            { nim: "G1A025080", na: 73.10 }, { nim: "G1A025073", na: 72.58 }, { nim: "G1A025148", na: 72.39 }, { nim: "G1A025125", na: 72.13 },
+            { nim: "G1A025027", na: 71.86 }, { nim: "G1A025002", na: 71.69 }, { nim: "G1A025112", na: 71.51 }, { nim: "G1A025003", na: 71.01 },
+            { nim: "G1A025041", na: 71.01 }, { nim: "G1A025042", na: 71.01 }, { nim: "G1A025048", na: 71.01 }, { nim: "G1A025103", na: 71.01 },
+            { nim: "G1A025115", na: 71.01 }, { nim: "G1A025143", na: 71.01 }, { nim: "G1A025173", na: 71.01 }, { nim: "G1A025004", na: 70.92 },
+            { nim: "G1A025087", na: 70.92 }, { nim: "G1A025098", na: 70.92 }, { nim: "G1A025155", na: 70.92 }, { nim: "G1A025021", na: 70.83 },
+            { nim: "G1A025061", na: 70.83 }, { nim: "G1A025093", na: 70.83 }, { nim: "G1A025154", na: 70.83 }, { nim: "G1A025047", na: 70.75 },
+            { nim: "G1A025089", na: 70.75 }, { nim: "G1A025094", na: 70.75 }, { nim: "G1A025111", na: 70.75 }, { nim: "G1A025142", na: 70.75 },
+            { nim: "G1A025121", na: 70.67 }, { nim: "G1A025009", na: 70.66 }, { nim: "G1A025153", na: 70.65 }, { nim: "G1A025064", na: 70.57 },
+            { nim: "G1A025118", na: 70.57 }, { nim: "G1A025120", na: 70.57 }, { nim: "G1A025128", na: 70.57 }, { nim: "G1A025129", na: 70.57 },
+            { nim: "G1A025138", na: 70.57 }, { nim: "G1A025149", na: 70.57 }, { nim: "G1A025026", na: 70.53 }, { nim: "G1A025096", na: 70.53 },
+            { nim: "G1A025030", na: 70.48 }, { nim: "G1A025060", na: 70.48 }, { nim: "G1A025062", na: 70.48 }, { nim: "G1A025074", na: 70.48 },
+            { nim: "G1A025081", na: 70.48 }, { nim: "G1A025088", na: 70.48 }, { nim: "G1A025136", na: 70.48 }, { nim: "G1A025156", na: 70.48 },
+            { nim: "G1A025168", na: 70.48 }, { nim: "G1A025035", na: 70.44 }, { nim: "G1A025040", na: 70.44 }, { nim: "G1A025005", na: 70.41 },
+            { nim: "G1A025038", na: 70.41 }, { nim: "G1A025069", na: 70.41 }, { nim: "G1A025101", na: 70.41 }, { nim: "G1A025139", na: 70.41 },
+            { nim: "G1A025163", na: 70.41 }, { nim: "G1A025174", na: 70.41 }, { nim: "G1A025001", na: 70.40 }, { nim: "G1A025022", na: 70.40 },
+            { nim: "G1A025049", na: 70.40 }, { nim: "G1A025052", na: 70.40 }, { nim: "G1A025071", na: 70.40 }, { nim: "G1A025091", na: 70.40 },
+            { nim: "G1A025116", na: 70.40 }, { nim: "G1A025133", na: 70.34 }, { nim: "G1A025067", na: 70.31 }, { nim: "G1A025126", na: 70.31 },
+            { nim: "G1A025134", na: 70.31 }, { nim: "G1A025165", na: 70.31 }, { nim: "G1A025020", na: 70.26 }, { nim: "G1A025037", na: 70.26 },
+            { nim: "G1A025044", na: 70.26 }, { nim: "G1A025063", na: 70.26 }, { nim: "G1A025086", na: 70.26 }, { nim: "G1A025131", na: 70.26 },
+            { nim: "G1A025150", na: 70.26 }, { nim: "G1A025175", na: 70.26 }, { nim: "G1A025075", na: 70.22 }, { nim: "G1A025097", na: 70.18 },
+            { nim: "G1A025057", na: 70.13 }, { nim: "G1A025099", na: 70.13 }, { nim: "G1A025147", na: 70.13 }, { nim: "G1A025169", na: 70.13 },
+            { nim: "G1A025015", na: 70.05 }, { nim: "G1A025160", na: 70.05 }, { nim: "G1A025008", na: 69.96 }, { nim: "G1A025077", na: 69.96 },
+            { nim: "G1A025130", na: 69.96 }, { nim: "G1A025127", na: 69.77 }, { nim: "G1A025007", na: 69.61 }, { nim: "G1A025083", na: 69.52 },
+            { nim: "G1A025152", na: 69.47 }, { nim: "G1A025070", na: 69.43 }, { nim: "G1A025171", na: 69.37 }, { nim: "G1A025023", na: 68.66 },
+            { nim: "G1A025124", na: 68.50 }, { nim: "G1A025132", na: 68.18 }, { nim: "G1A025141", na: 68.11 }, { nim: "G1A025140", na: 67.98 },
+            { nim: "G1A025146", na: 67.90 }, { nim: "G1A025032", na: 67.61 }, { nim: "G1A025024", na: 67.16 }, { nim: "G1A025066", na: 66.99 },
+            { nim: "G1A025107", na: 66.97 }, { nim: "G1A025123", na: 66.89 }, { nim: "G1A025166", na: 66.37 }, { nim: "G1A025039", na: 66.01 },
+            { nim: "G1A025053", na: 63.96 }, { nim: "G1A025059", na: 63.95 }, { nim: "G1A025043", na: 62.83 }, { nim: "G1A025172", na: 61.93 },
+            { nim: "G1A025011", na: 60.97 }, { nim: "G1A025176", na: 60.42 }, { nim: "G1A025157", na: 59.92 }, { nim: "G1A025119", na: 58.14 },
+            { nim: "G1A025167", na: 58.02 }, { nim: "G1A025117", na: 57.67 }, { nim: "G1A025046", na: 54.69 }, { nim: "G1A025170", na: 53.84 },
+            { nim: "G1A025036", na: 53.35 }, { nim: "G1A025076", na: 53.30 }, { nim: "G1A025034", na: 52.30 }, { nim: "G1A025159", na: 50.33 },
+            { nim: "G1A025164", na: 47.31 }, { nim: "G1A025144", na: 47.02 }, { nim: "G1A025050", na: 34.04 }, { nim: "G1A025019", na: 28.07 },
+            { nim: "G1A025161", na: 21.51 }, { nim: "G1A025122", na: 21.36 }, { nim: "G1A025162", na: 0.00 }
+        ];
+
+        // Map Block 1.2 Data for easy lookup
+        const block12Map = {};
+        block12Data.sort((a, b) => b.na - a.na); // Ensure sorted
+        block12Data.forEach((s, index) => {
+            block12Map[s.nim] = index + 1; // 1-based rank
+        });
+
+        // --- DATA BLOK 1.3 (SISTEM KONTROL) ---
+        const rawData = [
+            { nim: "G1A025001", nama: "MUSTIKA ZHAFARINA", soca: 73.75, fis: 63, his: 95.52, anat: 67.25, port: 89.5, cbt: 65.14, na: 70.62, grade: "B3" },
+            { nim: "G1A025002", nama: "ANINDITA RAHMAZYANTI", soca: 81.25, fis: 70, his: 69.4, anat: 64.13, port: 80.7, cbt: 73.14, na: 73.66, grade: "B5" },
+            { nim: "G1A025003", nama: "RONALD JASON NOVIANTO", soca: 51.25, fis: 90, his: 47.36, anat: 74.31, port: 72, cbt: 75, na: 68.71, grade: "B0" },
+            { nim: "G1A025004", nama: "WANDA WIDYASWARA", soca: 70, fis: 85, his: 73.88, anat: 65.25, port: 84.21, cbt: 61.14, na: 66.97, grade: "B0" },
+            { nim: "G1A025005", nama: "NATASYA PUTRI AZALIA", soca: 77.5, fis: 95, his: 69.29, anat: 62, port: 80, cbt: 58, na: 66.56, grade: "B0" },
+            { nim: "G1A025006", nama: "ALIF MUHAMMAD SATRIO NUGROHO", soca: 60, fis: 95, his: 85.82, anat: 82, port: 85, cbt: 83.43, na: 79.55, grade: "B9" },
+            { nim: "G1A025007", nama: "ANGGUN SEKAR AMALIA", soca: 81.25, fis: 95, his: 71.05, anat: 48.5, port: 82.46, cbt: 64, na: 69.09, grade: "B0" },
+            { nim: "G1A025008", nama: "MUHAMMAD RIZKI MAULANA", soca: 87.5, fis: 85, his: 57.01, anat: 60.19, port: 82.46, cbt: 69, na: 72.4, grade: "B0" },
+            { nim: "G1A025009", nama: "IVANA WIDYA PARAMITA", soca: 87.5, fis: 78, his: 70.14, anat: 56.25, port: 82.46, cbt: 65.14, na: 70.67, grade: "B3" },
+            { nim: "G1A025010", nama: "MIFTAKHUL RIZKY ALWI ZAKARIA", soca: 82.5, fis: 84.5, his: 79.1, anat: 69, port: 96.5, cbt: 73.71, na: 77.17, grade: "B7" },
+            { nim: "G1A025011", nama: "RIFA AFRIANTI PRIMANTO", soca: 81.25, fis: 67.5, his: 56.14, anat: 31.13, port: 87.72, cbt: 51, na: 58.1, grade: "C2" },
+            { nim: "G1A025012", nama: "ARZETA HAFIFATUZZAHROH", soca: 82.5, fis: 82.5, his: 64.17, anat: 68.8, port: 85, cbt: 71.43, na: 74.12, grade: "B5" },
+            { nim: "G1A025013", nama: "ALYSA ILMI AULIA", soca: 91.25, fis: 100, his: 92.53, anat: 88.13, port: 85, cbt: 84, na: 87.6, grade: "A" },
+            { nim: "G1A025014", nama: "NURUL UZMA ARIFINIANTI", soca: 90, fis: 97.5, his: 71.64, anat: 60.44, port: 85, cbt: 78.29, na: 79.62, grade: "B9" },
+            { nim: "G1A025015", nama: "NASHWA RIHADATUL 'AISY", soca: 88.75, fis: 70, his: 71.6, anat: 56.5, port: 80.7, cbt: 59.43, na: 67.64, grade: "B1" },
+            { nim: "G1A025016", nama: "HAIBA ZAHWA ADNINDYA ZIEN", soca: 80, fis: 98, his: 82.08, anat: 76.13, port: 82.46, cbt: 77.71, na: 79.8, grade: "B9" },
+            { nim: "G1A025017", nama: "ARKAAN ARRASYID SASANTO", soca: 67.5, fis: 85.5, his: 76.11, anat: 85.5, port: 80, cbt: 78.29, na: 77.27, grade: "B8" },
+            { nim: "G1A025018", nama: "ANDHIKA NUR HAKIM", soca: 51.25, fis: 90, his: 70.1, anat: 74.25, port: 85, cbt: 75.43, na: 71.39, grade: "B3" },
+            { nim: "G1A025019", nama: "ILHAM RAMADHAN TAUFIQ", soca: 53, fis: 38, his: 12.3, anat: 10, port: 85, cbt: 36, na: 37.21, grade: "E" },
+            { nim: "G1A025020", nama: "SYIFA AULIA WIDIANA", soca: 55, fis: 92.5, his: 57.89, anat: 63.75, port: 89.5, cbt: 69, na: 67.17, grade: "B0" },
+            { nim: "G1A025021", nama: "NAYRAH BARIZKY RITONGA", soca: 90, fis: 100, his: 68.42, anat: 67, port: 87.72, cbt: 62, na: 72.23, grade: "B0" },
+            { nim: "G1A025022", nama: "NATASYA AURA PUTRI AHMAD", soca: 78.7, fis: 82.5, his: 70.14, anat: 49.19, port: 96.5, cbt: 61.71, na: 67.39, grade: "B0" },
+            { nim: "G1A025023", nama: "LUTHFI FADHILAH FATURAHΜΑΝ", soca: 72.5, fis: 87.5, his: 80.7, anat: 64.5, port: 85, cbt: 68, na: 71.55, grade: "B0" },
+            { nim: "G1A025024", nama: "NABILA QURROTA A'INI", soca: 41.25, fis: 70, his: 30.7, anat: 38.13, port: 80.7, cbt: 63, na: 54.64, grade: "D8" },
+            { nim: "G1A025025", nama: "LOVINA DINA KAMILA", soca: 96.25, fis: 100, his: 82.83, anat: 88.5, port: 89.5, cbt: 89.14, na: 90.66, grade: "A" },
+            { nim: "G1A025026", nama: "AVELIKA LADYSA SHANETIN", soca: 67.5, fis: 87.5, his: 64.91, anat: 74.13, port: 87.72, cbt: 73, na: 72.98, grade: "B0" },
+            { nim: "G1A025027", nama: "SHARFINA AURIZMA TITANIA WARDANI", soca: 95, fis: 87.5, his: 85.82, anat: 80.37, port: 78, cbt: 75.43, na: 81.57, grade: "A" },
+            { nim: "G1A025028", nama: "RAFI HAZZA SAPUTRA NUR ROMADONI", soca: 77.5, fis: 85, his: 70.14, anat: 87.63, port: 82.45, cbt: 79.43, na: 79.69, grade: "B9" },
+            { nim: "G1A025029", nama: "FATWA DINAΤΑ", soca: 82.5, fis: 95, his: 70.14, anat: 73.75, port: 85, cbt: 77.14, na: 78.75, grade: "B9" },
+            { nim: "G1A025030", nama: "REZA HARUN", soca: 82.5, fis: 90, his: 57.46, anat: 67.43, port: 80.7, cbt: 65.71, na: 70.81, grade: "B3" },
+            { nim: "G1A025031", nama: "AZKIYA HUSNABILA", soca: 85, fis: 88.5, his: 75.4, anat: 70.5, port: 76, cbt: 74.29, na: 77.04, grade: "B7" },
+            { nim: "G1A025032", nama: "DAVINA NATTAYA KOMARA", soca: 76.25, fis: 82.5, his: 78.07, anat: 73, port: 89.5, cbt: 76, na: 76.95, grade: "B0" },
+            { nim: "G1A025033", nama: "MARIA CATHLEEN LIEM", soca: 96.25, fis: 90, his: 79.85, anat: 82, port: 96.5, cbt: 80.57, na: 85.17, grade: "A" },
+            { nim: "G1A025034", nama: "AYU WULAN PUTRIANA", soca: 42.5, fis: 75, his: 28.07, anat: 32.18, port: 85, cbt: 54, na: 50.04, grade: "D4" },
+            { nim: "G1A025035", nama: "KEISYA BEAUTY STANZA", soca: 73.8, fis: 87.5, his: 85.82, anat: 76.25, port: 85, cbt: 73.14, na: 76.08, grade: "B7" },
+            { nim: "G1A025036", nama: "MU'AFA NAZHMIR ROBBANI", soca: 48.75, fis: 91, his: 17.54, anat: 39.25, port: 85, cbt: 50, na: 50.18, grade: "D4" },
+            { nim: "G1A025037", nama: "ZAWA HASNA ZAHIDAH", soca: 88.75, fis: 92.5, his: 60.44, anat: 58.13, port: 85, cbt: 73.71, na: 75.64, grade: "B6" },
+            { nim: "G1A025038", nama: "ANWA FATHINA BIDZIKRI", soca: 87.5, fis: 100, his: 69.29, anat: 73.75, port: 80, cbt: 61, na: 71.66, grade: "B0" },
+            { nim: "G1A025039", nama: "MYCHA NAZILA SYAKIROH", soca: 73.8, fis: 93.5, his: 74.56, anat: 79.67, port: 87.72, cbt: 50, na: 64.48, grade: "C8" },
+            { nim: "G1A025040", nama: "MUHAMMAD RAFI NAUFAREL", soca: 82.5, fis: 100, his: 68.42, anat: 62.25, port: 86, cbt: 56, na: 67.12, grade: "B0" },
+            { nim: "G1A025041", nama: "BATRISYIA ATHA RINDRA JAFNI", soca: 90, fis: 84, his: 59.7, anat: 67.5, port: 85, cbt: 69.71, na: 74.35, grade: "B5" },
+            { nim: "G1A025042", nama: "NAILA FIRDAUZI HARYADINA PUTRI", soca: 81.25, fis: 90.5, his: 77.61, anat: 63.33, port: 85, cbt: 69.71, na: 73.96, grade: "B5" },
+            { nim: "G1A025043", nama: "ASIYAH", soca: 57.5, fis: 72.5, his: 64.91, anat: 51.75, port: 85, cbt: 56, na: 58.99, grade: "C2" },
+            { nim: "G1A025044", nama: "KHANSA JAHFALATHA BALQIS", soca: 100, fis: 77.5, his: 66.42, anat: 62.25, port: 89.5, cbt: 64, na: 73.29, grade: "B5" },
+            { nim: "G1A025045", nama: "NASYWA AMANIA HIDAYAT", soca: 80, fis: 87.5, his: 82, anat: 81.88, port: 87.72, cbt: 84, na: 83.2, grade: "A" },
+            { nim: "G1A025046", nama: "MONICA SANCI KONDAWE", soca: 46.25, fis: 90, his: 47.36, anat: 44.56, port: 89.5, cbt: 55, na: 55.32, grade: "D9" },
+            { nim: "G1A025047", nama: "MUHAMMAD ALRIZA NASUTION", soca: 63.75, fis: 85, his: 70.18, anat: 67.5, port: 79, cbt: 68, na: 68.84, grade: "B0" },
+            { nim: "G1A025048", nama: "ALMIRA HANIFA", soca: 70, fis: 95, his: 83.33, anat: 71.88, port: 82.46, cbt: 76, na: 76.4, grade: "B0" },
+            { nim: "G1A025049", nama: "RIFQAH ZULFA AFANIN", soca: 96.25, fis: 78, his: 70.14, anat: 57.25, port: 85, cbt: 76.57, na: 78.37, grade: "B8" },
+            { nim: "G1A025050", nama: "MUHAMMAD NAUVAL PANJI AL HAKIM", soca: 59, fis: 45, his: 13.16, anat: 24.5, port: 85, cbt: 35, na: 40, grade: "E" },
+            { nim: "G1A025051", nama: "AMIRA BALQIS ASSABA", soca: 67.5, fis: 85, his: 80.59, anat: 65.25, port: 85, cbt: 73.71, na: 73.33, grade: "B5" },
+            { nim: "G1A025052", nama: "CLAIRINE ZERLINA HANIFAH", soca: 80, fis: 75, his: 64.92, anat: 56, port: 85, cbt: 67.43, na: 69.82, grade: "B2" },
+            { nim: "G1A025053", nama: "CHRISTIAN PRAJADI", soca: 60, fis: 85, his: 43.85, anat: 56.31, port: 87.72, cbt: 62, na: 62.19, grade: "C6" },
+            { nim: "G1A025054", nama: "ALFI NISA DAMAYANTI", soca: 51.25, fis: 93, his: 85, anat: 71.63, port: 96.5, cbt: 74.86, na: 72.76, grade: "B4" },
+            { nim: "G1A025055", nama: "VANISSA FATHIAH ARDANI", soca: 75, fis: 85, his: 83.5, anat: 77, port: 85, cbt: 84, na: 81.5, grade: "A" },
+            { nim: "G1A025056", nama: "SIGIT PRAMBUDI DIENTI", soca: 88.75, fis: 90, his: 65.6, anat: 60.88, port: 80, cbt: 69.14, na: 73.67, grade: "B5" },
+            { nim: "G1A025057", nama: "MUHAMMAD UZAIR ABDILLAH", soca: 87.5, fis: 97.5, his: 61.4, anat: 71.37, port: 85, cbt: 66, na: 73.36, grade: "B0" },
+            { nim: "G1A025059", nama: "MAYCO CAHYA TRI ADINANSYAH", soca: 61.25, fis: 85.5, his: 58.77, anat: 42.56, port: 72, cbt: 50, na: 55.36, grade: "D9" },
+            { nim: "G1A025060", nama: "NADIA CHERYL", soca: 62.5, fis: 90, his: 70.1, anat: 89.13, port: 85, cbt: 72, na: 73.56, grade: "B5" },
+            { nim: "G1A025061", nama: "NADIA CHAIRUNNISA OLIA PUTRI", soca: 81.25, fis: 90.5, his: 53.73, anat: 59.68, port: 87.72, cbt: 65.71, na: 69.79, grade: "B2" },
+            { nim: "G1A025062", nama: "LOKANANTA ARKIE AMSAL", soca: 97.5, fis: 82.5, his: 64.92, anat: 61.75, port: 80.7, cbt: 65.71, na: 73.33, grade: "B5" },
+            { nim: "G1A025063", nama: "M. DANAR RAMADHAN TARUNA", soca: 61.25, fis: 87.5, his: 79, anat: 73.68, port: 89.5, cbt: 54, na: 63.4, grade: "C7" },
+            { nim: "G1A025064", nama: "RAZITA KHAIRINA PRASAJA MARPAUNG", soca: 65, fis: 93, his: 61.19, anat: 61.56, port: 87.72, cbt: 78.29, na: 73.78, grade: "B5" },
+            { nim: "G1A025065", nama: "IRSYAD WAHYU MUHARROM", soca: 76.25, fis: 80, his: 63.43, anat: 73.13, port: 85.1, cbt: 71.43, na: 73.14, grade: "B5" },
+            { nim: "G1A025066", nama: "INGRID GAYATRI", soca: 57.5, fis: 85, his: 45.61, anat: 38.56, port: 96.5, cbt: 63, na: 60.82, grade: "C4" },
+            { nim: "G1A025067", nama: "FADHILAH AZKA AFKARINA", soca: 68.75, fis: 80, his: 46.48, anat: 58.94, port: 85, cbt: 67, na: 66.5, grade: "B0" },
+            { nim: "G1A025068", nama: "GABRIEL DANENDRA SETYAWAN", soca: 90, fis: 93, his: 72.38, anat: 82.83, port: 85, cbt: 80, na: 82.73, grade: "A" },
+            { nim: "G1A025069", nama: "'AMILAH AMATURRAHIM AL MUJAHIDAH", soca: 57.5, fis: 85, his: 61.19, anat: 50.5, port: 80, cbt: 56.57, na: 59.34, grade: "C3" },
+            { nim: "G1A025070", nama: "FARID HAMZAH PUTRA PRATAMA", soca: 78.75, fis: 87.5, his: 66.41, anat: 51.66, port: 85, cbt: 64, na: 68.25, grade: "B1" },
+            { nim: "G1A025071", nama: "JAMES SUDIANTO RACHMAPUTRA", soca: 83.75, fis: 80, his: 80.6, anat: 51.81, port: 87.72, cbt: 73.14, na: 74.65, grade: "B6" },
+            { nim: "G1A025072", nama: "KHAIRUNNISA AZKA FADILA", soca: 68.75, fis: 91, his: 76.87, anat: 71, port: 80.7, cbt: 75.43, na: 74.92, grade: "B6" },
+            { nim: "G1A025073", nama: "ISYRAFUDDIN ABDUN YASYKUR", soca: 100, fis: 90, his: 85.82, anat: 70.88, port: 85, cbt: 80, na: 84.31, grade: "A" },
+            { nim: "G1A025074", nama: "TSALITSA AFIFAH NIDAUL HAQ", soca: 87.5, fis: 82.5, his: 72, anat: 65, port: 80.7, cbt: 72, na: 75.4, grade: "B0" },
+            { nim: "G1A025075", nama: "AISYAH NUR AZIZAH", soca: 83.75, fis: 83, his: 70.15, anat: 61.37, port: 87.72, cbt: 61.71, na: 69.34, grade: "B2" },
+            { nim: "G1A025076", nama: "WAHYUDI", soca: 71.25, fis: 85, his: 49.12, anat: 39.13, port: 0, cbt: 61, na: 58.08, grade: "C2" },
+            { nim: "G1A025077", nama: "KAUTSAR PANDYA RAHADYAN", soca: 77.5, fis: 87.5, his: 64.91, anat: 56, port: 77.2, cbt: 73, na: 72.46, grade: "B0" },
+            { nim: "G1A025078", nama: "CHRISTIAN ALLAN", soca: 71.25, fis: 90, his: 62.68, anat: 66.25, port: 86, cbt: 82.29, na: 77.39, grade: "B8" },
+            { nim: "G1A025079", nama: "I DEWA AYU MADE SHINTA ANGELINA", soca: 78.75, fis: 100, his: 73.13, anat: 69.63, port: 90.35, cbt: 74.29, na: 76.92, grade: "B7" },
+            { nim: "G1A025080", nama: "DZAKI AMRU SYAFI", soca: 62.5, fis: 85, his: 62.69, anat: 74.46, port: 82.45, cbt: 76, na: 72.93, grade: "B4" },
+            { nim: "G1A025081", nama: "NAURA PUTRI ALEXANDRIA", soca: 70, fis: 92.5, his: 68.42, anat: 68.5, port: 85, cbt: 70, na: 71.81, grade: "B0" },
+            { nim: "G1A025082", nama: "ARKAN FAWWAZ INDARJO", soca: 81.25, fis: 80.5, his: 83.58, anat: 66.68, port: 96.5, cbt: 74.86, na: 77.35, grade: "B0" },
+            { nim: "G1A025083", nama: "GHANIA NAILA NOOR DZAKIYYAH", soca: 71.3, fis: 87.5, his: 63.43, anat: 53.33, port: 85, cbt: 72, na: 70.7, grade: "B3" },
+            { nim: "G1A025084", nama: "ANINDYA SAFIRA RIYANTO", soca: 61.25, fis: 90, his: 64.18, anat: 61.63, port: 85, cbt: 74.29, na: 70.96, grade: "B3" },
+            { nim: "G1A025086", nama: "UTHI FIDELA SALWA", soca: 78.75, fis: 95, his: 79.85, anat: 80.63, port: 89.5, cbt: 73.71, na: 78.04, grade: "B8" },
+            { nim: "G1A025087", nama: "AUFADHIYA KHAIRANI PUTRI", soca: 53.75, fis: 92.5, his: 68.42, anat: 65.5, port: 82.45, cbt: 57, na: 61.6, grade: "C5" },
+            { nim: "G1A025088", nama: "HANUM PRIMANDA KHAIRUNNISA", soca: 82.5, fis: 84, his: 85.07, anat: 55.38, port: 80.7, cbt: 66.86, na: 71.9, grade: "B4" },
+            { nim: "G1A025089", nama: "IKA WIDIASTUTI", soca: 56.25, fis: 90, his: 74.63, anat: 64.38, port: 96.5, cbt: 68, na: 68.53, grade: "B1" },
+            { nim: "G1A025091", nama: "CLAUDIA ZAR'IN PUTRI JASMINE", soca: 81.25, fis: 88, his: 68.66, anat: 66.63, port: 85, cbt: 81.14, na: 79.17, grade: "B9" },
+            { nim: "G1A025092", nama: "SIXTEENOVA ARINI RAHMATIΚΑ", soca: 95, fis: 82.5, his: 73.88, anat: 78.38, port: 77.2, cbt: 75.43, na: 80.06, grade: "A" },
+            { nim: "G1A025093", nama: "AMEERA JASMINE ZAIN", soca: 67.5, fis: 90, his: 77.6, anat: 59.31, port: 86.84, cbt: 65.14, na: 68.55, grade: "B1" },
+            { nim: "G1A025094", nama: "NADYANDRA ARETHA MAIRITZA", soca: 73.75, fis: 87.5, his: 73.13, anat: 67.88, port: 80.7, cbt: 64.57, na: 69.64, grade: "B2" },
+            { nim: "G1A025095", nama: "NADINE PRAMESTHA ARDHANI", soca: 91.25, fis: 97.5, his: 83.58, anat: 73.38, port: 85, cbt: 82.86, na: 84.54, grade: "A" },
+            { nim: "G1A025096", nama: "AMELIA AZZAHRA", soca: 77.5, fis: 90, his: 66.41, anat: 60, port: 85, cbt: 68, na: 71.06, grade: "B3" },
+            { nim: "G1A025097", nama: "RIFAT PRAMUDIA NASUTION", soca: 82.5, fis: 95, his: 68.42, anat: 66.62, port: 85, cbt: 64, na: 71.25, grade: "B0" },
+            { nim: "G1A025098", nama: "JAHFAL AL FARISI", soca: 92.5, fis: 95, his: 72.8, anat: 56.87, port: 82.45, cbt: 69, na: 74.9, grade: "B0" },
+            { nim: "G1A025099", nama: "ISTAVANIA NADIA MUFID", soca: 70, fis: 100, his: 78.07, anat: 72.5, port: 85, cbt: 77, na: 76.97, grade: "B0" },
+            { nim: "G1A025100", nama: "RISTY PUTERI KUSUMA MAHARDIKANINGSIH", soca: 75, fis: 90, his: 73.88, anat: 62.37, port: 82.46, cbt: 77.14, na: 75.87, grade: "B7" },
+            { nim: "G1A025101", nama: "CHELSEA ICHA PUTRI ANZANI", soca: 67.5, fis: 87.5, his: 59.6, anat: 60, port: 80, cbt: 59, na: 64.07, grade: "C8" },
+            { nim: "G1A025102", nama: "DZAKWAN HAMMAM NAWAWI", soca: 95, fis: 80, his: 62.6, anat: 44.87, port: 86.84, cbt: 68.57, na: 70.87, grade: "B3" },
+            { nim: "G1A025103", nama: "YAZMINE", soca: 52.5, fis: 77.5, his: 59.7, anat: 55, port: 72, cbt: 65.71, na: 62.43, grade: "C6" },
+            { nim: "G1A025104", nama: "MAULIDIA ZULFA KARTIKA", soca: 55, fis: 82.5, his: 62.68, anat: 72.5, port: 82.46, cbt: 68, na: 67.06, grade: "B0" },
+            { nim: "G1A025105", nama: "SAVANA RIZKY PURNAMA", soca: 100, fis: 87.5, his: 85, anat: 75.88, port: 85, cbt: 83.43, na: 86.36, grade: "A" },
+            { nim: "G1A025106", nama: "YASMIN TAQIYAH TAMBUNAN", soca: 70, fis: 92.5, his: 79.1, anat: 81.25, port: 85, cbt: 77.71, na: 77.92, grade: "B8" },
+            { nim: "G1A025107", nama: "NACHAYA AROFAHNI WIJAYA", soca: 53.75, fis: 77.5, his: 53.5, anat: 71.93, port: 89.5, cbt: 67, na: 65.57, grade: "C9" },
+            { nim: "G1A025108", nama: "FRIDA MULIADEWI CHAERANI", soca: 90, fis: 79, his: 63.43, anat: 75.31, port: 82.46, cbt: 76, na: 78.22, grade: "B8" },
+            { nim: "G1A025109", nama: "GHANIY HILDAN RABBANI", soca: 93.75, fis: 88, his: 72.3, anat: 66.63, port: 85, cbt: 70.86, na: 76.82, grade: "B7" },
+            { nim: "G1A025110", nama: "ALTAF FIAN JUNINDA", soca: 97.5, fis: 87.5, his: 62.6, anat: 72, port: 85, cbt: 81.14, na: 82.5, grade: "A" },
+            { nim: "G1A025111", nama: "FADELLA AZZAHRA", soca: 78.75, fis: 95, his: 65.79, anat: 67.56, port: 82.45, cbt: 61, na: 68.77, grade: "B0" },
+            { nim: "G1A025112", nama: "HANINDITA NASTITI AYUNINGTIAS", soca: 76.25, fis: 95, his: 70.14, anat: 74.06, port: 85, cbt: 70.29, na: 74.1, grade: "B5" },
+            { nim: "G1A025113", nama: "TYANAYA RAHMA", soca: 86, fis: 85, his: 80.59, anat: 67.13, port: 80, cbt: 68.57, na: 74.42, grade: "B6" },
+            { nim: "G1A025114", nama: "CHINTYA PUTRI NABILAH", soca: 56.25, fis: 75, his: 76.86, anat: 72, port: 85, cbt: 70.86, na: 69.5, grade: "B2" },
+            { nim: "G1A025115", nama: "AISYA NURLANGIT FITRI", soca: 81.25, fis: 88, his: 76.86, anat: 56.25, port: 93, cbt: 74.86, na: 75.94, grade: "B7" },
+            { nim: "G1A025116", nama: "AVISA ZANDRA CITAGAMI", soca: 62.5, fis: 95, his: 70.17, anat: 70.69, port: 82.46, cbt: 75, na: 73.21, grade: "B0" },
+            { nim: "G1A025117", nama: "FIQYA SULISTIANI", soca: 52.5, fis: 77.5, his: 30.7, anat: 34.5, port: 85, cbt: 61, na: 56.15, grade: "C0" },
+            { nim: "G1A025118", nama: "RAHMA GRISELDA INDRASTATA", soca: 90, fis: 92.5, his: 58.77, anat: 55.25, port: 96.5, cbt: 63, na: 70.65, grade: "B0" },
+            { nim: "G1A025119", nama: "KHESYIA NAFIA ΑΤΜΟΚΟ", soca: 62.5, fis: 57.5, his: 25.43, anat: 34.5, port: 85, cbt: 41, na: 46.53, grade: "D0" },
+            { nim: "G1A025120", nama: "QAFFAL ZIAN QADSI", soca: 88.75, fis: 87.5, his: 66.67, anat: 72.88, port: 96.5, cbt: 72, na: 77.18, grade: "B0" },
+            { nim: "G1A025121", nama: "AMIRA AZALIA", soca: 53.75, fis: 92.5, his: 73.68, anat: 68.2, port: 82.46, cbt: 67, na: 67.32, grade: "B0" },
+            { nim: "G1A025122", nama: "MUHAMMAD RASYID SURYA WICAKSONO", soca: 32.5, fis: 0, his: 0, anat: 0, port: 0, cbt: 0, na: 6.5, grade: "E" },
+            { nim: "G1A025123", nama: "NAURA ALYA FASHIHA", soca: 73.75, fis: 85, his: 57.02, anat: 46.87, port: 82.46, cbt: 70, na: 68.69, grade: "B0" },
+            { nim: "G1A025124", nama: "BUNGA PUTRI ANGGINA", soca: 61.25, fis: 92.5, his: 45.61, anat: 45.5, port: 85.1, cbt: 76, na: 68.71, grade: "B0" },
+            { nim: "G1A025125", nama: "M. ANDHIKA PUTRA PRATAMA", soca: 82.5, fis: 90, his: 53.73, anat: 63.13, port: 89.5, cbt: 71.43, na: 73.33, grade: "B5" },
+            { nim: "G1A025126", nama: "HANENDI FAREL SANTAUSO", soca: 56.25, fis: 87.5, his: 68.42, anat: 67.93, port: 85, cbt: 56, na: 61.7, grade: "C5" },
+            { nim: "G1A025127", nama: "JOVITA BERNADINE AZALIA DWIASTHI", soca: 71.25, fis: 87.5, his: 70.17, anat: 59.38, port: 85, cbt: 63, na: 67.4, grade: "B0" },
+            { nim: "G1A025128", nama: "RAISHA AQILA ARDANU", soca: 60, fis: 87.5, his: 81.57, anat: 75.62, port: 85.1, cbt: 63, na: 67.85, grade: "B0" },
+            { nim: "G1A025129", nama: "NAZLA RIFDA AQILLAH", soca: 97.5, fis: 79, his: 58.2, anat: 57.5, port: 96.5, cbt: 64, na: 72.05, grade: "B4" },
+            { nim: "G1A025130", nama: "SYAFIQ ATAULLAH GHAFFAR", soca: 63.75, fis: 92.5, his: 75.44, anat: 81.98, port: 80, cbt: 70, na: 72.35, grade: "B0" },
+            { nim: "G1A025131", nama: "ZIDAN ADI HENDRIK TRI PUTRA", soca: 77.5, fis: 90, his: 71.64, anat: 53.75, port: 85, cbt: 65.71, na: 69.65, grade: "B2" },
+            { nim: "G1A025132", nama: "FADHEL MUHAMMAD AIHAM", soca: 43.75, fis: 65, his: 59.64, anat: 31, port: 93, cbt: 63, na: 56.98, grade: "C0" },
+            { nim: "G1A025133", nama: "AISYAH LOVIA ZAHRA ROCHMANA", soca: 42.5, fis: 97.5, his: 52.2, anat: 51.63, port: 80, cbt: 57.71, na: 57.06, grade: "C1" },
+            { nim: "G1A025134", nama: "BAGAS ARIEF SETYA WARDANA", soca: 78.75, fis: 97.5, his: 76.8, anat: 61.88, port: 87.72, cbt: 72, na: 74.94, grade: "B6" },
+            { nim: "G1A025135", nama: "KHAMIDYA SAFIRA", soca: 96, fis: 89, his: 63.43, anat: 62.38, port: 85, cbt: 73.14, na: 77.3, grade: "B8" },
+            { nim: "G1A025136", nama: "RIKO RAHARDIAN PUTRA WARDANA", soca: 66.25, fis: 78, his: 74.6, anat: 58.75, port: 80.7, cbt: 64.57, na: 66.68, grade: "B0" },
+            { nim: "G1A025138", nama: "TITEN WIGUNA", soca: 71.25, fis: 82.5, his: 70.17, anat: 60.25, port: 96.5, cbt: 69, na: 70.77, grade: "B0" },
+            { nim: "G1A025139", nama: "FANISA MAULIDA RAHARJA", soca: 92.5, fis: 77.5, his: 71.6, anat: 52.31, port: 80, cbt: 73.14, na: 75.2, grade: "B6" },
+            { nim: "G1A025140", nama: "DWINANDA FITRIANA PUTRI", soca: 46.25, fis: 75, his: 52.63, anat: 31.87, port: 72, cbt: 65, na: 57.57, grade: "C1" },
+            { nim: "G1A025141", nama: "BERMASAUT ADIPUTRA TAMPUBOLON", soca: 47.5, fis: 80, his: 46.49, anat: 27.63, port: 85, cbt: 67, na: 58.81, grade: "C2" },
+            { nim: "G1A025142", nama: "ZASKIA YUFLIHA ALYA NISA", soca: 70, fis: 95, his: 68.42, anat: 78, port: 84.21, cbt: 70, na: 72.96, grade: "B0" },
+            { nim: "G1A025143", nama: "SYAHRU SYABANA SETIYAΝΤΟ", soca: 92.5, fis: 95, his: 86.56, anat: 49.94, port: 85, cbt: 60.57, na: 71.15, grade: "B3" },
+            { nim: "G1A025144", nama: "NISRINA ATIRA AFLAH GUNNARTO", soca: 57.5, fis: 87.5, his: 63.15, anat: 48, port: 72, cbt: 55, na: 58.18, grade: "C2" },
+            { nim: "G1A025145", nama: "HASAN TRI GUNAWAN", soca: 80, fis: 81, his: 61.19, anat: 61.88, port: 76, cbt: 72.57, na: 72.65, grade: "B4" },
+            { nim: "G1A025146", nama: "NADHIRA YUSTRINA", soca: 75, fis: 92.5, his: 71.92, anat: 67.18, port: 85, cbt: 63, na: 69.44, grade: "B0" },
+            { nim: "G1A025147", nama: "WAHYU CAN ARUM PUTRI RAMBIATI", soca: 73.75, fis: 95, his: 70.14, anat: 72.5, port: 82.46, cbt: 63.43, na: 69.87, grade: "B2" },
+            { nim: "G1A025148", nama: "ARSELAN RIZQY DARMAWAN", soca: 77.5, fis: 81, his: 75.37, anat: 61.88, port: 82.46, cbt: 74.29, na: 74.46, grade: "B6" },
+            { nim: "G1A025149", nama: "NARDIIN FATHIYYAH SUNYOTO", soca: 93.75, fis: 95, his: 68.42, anat: 50.12, port: 85.1, cbt: 73, na: 76.19, grade: "B0" },
+            { nim: "G1A025150", nama: "AQBIL REZKY BUNAYYA", soca: 73.75, fis: 95, his: 64.91, anat: 72.5, port: 89.5, cbt: 61, na: 68.59, grade: "B0" },
+            { nim: "G1A025151", nama: "MUHAMMAD THORIQ AL ROSYID", soca: 83.75, fis: 86, his: 73.1, anat: 70.44, port: 85, cbt: 72.57, na: 76.04, grade: "B7" },
+            { nim: "G1A025152", nama: "RAFI DINAN AL FARISI", soca: 62.5, fis: 90, his: 71.92, anat: 69.38, port: 85, cbt: 64, na: 67.54, grade: "B0" },
+            { nim: "G1A025153", nama: "MUHAMMAD FARRELL ARCHARD ZHAFIF SUCIPTO", soca: 67.5, fis: 85, his: 58.77, anat: 43.69, port: 87.72, cbt: 69, na: 66.99, grade: "B0" },
+            { nim: "G1A025154", nama: "JOSEPHINE MELYNA EVANY ESTAFANA", soca: 73.75, fis: 90, his: 70.8, anat: 70.63, port: 85, cbt: 69.14, na: 72.4, grade: "B4" },
+            { nim: "G1A025155", nama: "GAFIN AULIA RAHARJO", soca: 86.25, fis: 85, his: 82, anat: 61.75, port: 87.72, cbt: 69.14, na: 74.66, grade: "B6" },
+            { nim: "G1A025156", nama: "CLEARY SHAYNA HANIN", soca: 82.5, fis: 82.5, his: 45.52, anat: 41.5, port: 82.46, cbt: 48, na: 57.78, grade: "C1" },
+            { nim: "G1A025157", nama: "RAZZA RASENDRIYA NANDANA ARDI", soca: 65, fis: 85, his: 49.12, anat: 46.56, port: 82.45, cbt: 68, na: 65.27, grade: "C9" },
+            { nim: "G1A025159", nama: "KEYSHA FAUSTA ZAINI", soca: 50, fis: 80, his: 24.56, anat: 42.81, port: 96.5, cbt: 51, na: 51.8, grade: "D5" },
+            { nim: "G1A025160", nama: "NADIYA BINTANG RAZIA NΙΚΟ", soca: 81.25, fis: 95, his: 70.17, anat: 75.88, port: 85, cbt: 75, na: 77.66, grade: "B0" },
+            { nim: "G1A025161", nama: "MOH. ILHAM ARDIATSYAH", soca: 57, fis: 47.5, his: 15.78, anat: 22, port: 85, cbt: 36, na: 40.18, grade: "E" },
+            { nim: "G1A025162", nama: "NEILONA ARRYKA ASDATAMA", soca: 0, fis: 0, his: 0, anat: 0, port: 0, cbt: 0, na: 0, grade: "E" },
+            { nim: "G1A025163", nama: "ASTRELLA AIMEE KHOIRUNNISA", soca: 86, fis: 87.5, his: 53.73, anat: 58.5, port: 80, cbt: 70.29, na: 72.33, grade: "B4" },
+            { nim: "G1A025164", nama: "ATHIFATUL JANNAH", soca: 87.5, fis: 75, his: 15.78, anat: 26.88, port: 89.5, cbt: 60, na: 60.69, grade: "C4" },
+            { nim: "G1A025165", nama: "MUHAMMAD SYAFIEQ ADZKA", soca: 87.5, fis: 93, his: 61.4, anat: 65.93, port: 86.84, cbt: 68, na: 73.59, grade: "B0" },
+            { nim: "G1A025166", nama: "SYIFA NURJANAH", soca: 61.25, fis: 88, his: 73.68, anat: 68.43, port: 85, cbt: 61, na: 65.7, grade: "C9" },
+            { nim: "G1A025167", nama: "DIMAS ZAHRAN HERDYASSAGAF", soca: 62.5, fis: 61.5, his: 38.59, anat: 23.75, port: 87.72, cbt: 45, na: 48.78, grade: "D2" },
+            { nim: "G1A025168", nama: "FARREL MOZA DHIYAUL HAQ", soca: 60, fis: 96.5, his: 63.15, anat: 76.62, port: 80.7, cbt: 70, na: 70.31, grade: "B0" },
+            { nim: "G1A025169", nama: "REECHARD BURHANUDIN FUADY", soca: 70, fis: 95, his: 63.15, anat: 61.75, port: 89.5, cbt: 44, na: 58.02, grade: "C2" },
+            { nim: "G1A025170", nama: "ADDINI FATMA ARINI", soca: 50, fis: 75, his: 36.84, anat: 42.38, port: 89.5, cbt: 62, na: 57.58, grade: "C1" },
+            { nim: "G1A025171", nama: "HANIN NAURA FARIHA", soca: 40, fis: 90.5, his: 56.14, anat: 57.4, port: 85, cbt: 73, na: 64.99, grade: "C8" },
+            { nim: "G1A025172", nama: "AHMAD ABDUL HAQQI", soca: 56.25, fis: 65, his: 36.84, anat: 46.87, port: 87.72, cbt: 52, na: 53.64, grade: "D7" },
+            { nim: "G1A025173", nama: "FASYA AULIA FAUSTINA", soca: 70, fis: 100, his: 59.64, anat: 71, port: 82.46, cbt: 62, na: 67.7, grade: "B0" },
+            { nim: "G1A025174", nama: "AHMAD MUQORROBIN", soca: 58.75, fis: 93, his: 66.67, anat: 53.25, port: 80, cbt: 67, na: 66.02, grade: "B0" },
+            { nim: "G1A025175", nama: "AKBAR BAGUS SRI ZENA", soca: 80, fis: 92.5, his: 50.87, anat: 64.38, port: 89.5, cbt: 70, na: 72.18, grade: "B0" },
+            { nim: "G1A025176", nama: "RAFID NAUFAL NURIMANUZAKI", soca: 90, fis: 85, his: 61.4, anat: 53.75, port: 79, cbt: 42, na: 58.87, grade: "C2" }
+        ];
+
+        // Sort data based on Final Score (NA) Descending
+        rawData.sort((a, b) => b.na - a.na);
+
+        // Assign Ranks including ties
+        let currentRank = 1;
+        for (let i = 0; i < rawData.length; i++) {
+            if (i > 0 && rawData[i].na < rawData[i - 1].na) {
+                currentRank = i + 1;
+            }
+            rawData[i].rank = currentRank;
+        }
+
+        // --- GELAR (TITLES) ---
+        const getTitles = (s) => {
+            let titles = [];
+            
+            // Rank Titles
+            if (s.rank === 1) titles.push({ text: "The Apex Predator", class: "bg-apex" });
+            else if (s.rank <= 3) titles.push({ text: "Prodigy", class: "bg-apex" });
+            else if (s.rank <= 10) titles.push({ text: "Elite", class: "bg-violet" });
+
+            // Subject Titles
+            if (s.anat >= 85) titles.push({ text: "Anatomy Ace", class: "bg-rose" });
+            if (s.his >= 85) titles.push({ text: "Histology Hero", class: "bg-rose" });
+            if (s.fis >= 95) titles.push({ text: "Physiology Pro", class: "bg-rose" }); 
+            if (s.soca >= 95) titles.push({ text: "SOCA Slayer", class: "bg-cyan" });
+            
+            // Skill Titles
+            if (s.cbt >= 85) titles.push({ text: "Theory King", class: "bg-violet" });
+            if (s.port >= 90) titles.push({ text: "Portfolio Master", class: "bg-gray" });
+            
+            // Fallback Title
+            if (s.na >= 80 && titles.length === 0) titles.push({ text: "High Achiever", class: "bg-gray" });
+
+            return titles;
+        }
+
+        // --- RANK COMPARISON HELPER ---
+        const getRankChangeHtml = (nim, currentRank) => {
+            const prevRank = block12Map[nim];
+            if (!prevRank) {
+                return `<div class="flex items-center text-xs font-semibold text-gray-500 bg-white/10 px-2 py-0.5 rounded ml-2">NEW</div>`;
+            }
+            
+            const diff = prevRank - currentRank;
+            if (diff > 0) {
+                // Rank Improved (e.g. 10 -> 5 = +5)
+                return `<div class="flex items-center text-xs font-bold rank-up ml-2"><i class="fa-solid fa-arrow-up mr-1"></i> ${diff}</div>`;
+            } else if (diff < 0) {
+                // Rank Declined (e.g. 1 -> 5 = -4)
+                return `<div class="flex items-center text-xs font-bold rank-down ml-2"><i class="fa-solid fa-arrow-down mr-1"></i> ${Math.abs(diff)}</div>`;
+            } else {
+                return `<div class="flex items-center text-xs font-bold rank-same ml-2"><i class="fa-solid fa-minus"></i></div>`;
+            }
+        };
+
+        const getRankChangeText = (nim, currentRank) => {
+             const prevRank = block12Map[nim];
+             if (!prevRank) return `<span class="text-gray-500">New Entry</span>`;
+             const diff = prevRank - currentRank;
+             if(diff > 0) return `<span class="text-green-400 font-bold"><i class="fa-solid fa-arrow-up"></i> Naik ${diff} Peringkat</span>`;
+             if(diff < 0) return `<span class="text-red-400 font-bold"><i class="fa-solid fa-arrow-down"></i> Turun ${Math.abs(diff)} Peringkat</span>`;
+             return `<span class="text-gray-400 font-bold"><i class="fa-solid fa-minus"></i> Peringkat Tetap</span>`;
+        };
+
+        // --- RENDERING ---
+        const podiumContainer = document.getElementById('podium-container');
+        const gridContainer = document.getElementById('student-grid');
+
+        // Update Stats
+        document.getElementById('stat-total').innerText = rawData.length;
+        document.getElementById('stat-high').innerText = rawData[0].na.toFixed(2);
+        document.getElementById('stat-a').innerText = rawData.filter(s => s.grade === 'A').length;
+
+        function renderAll() {
+            // Separate Top 3 for Podium
+            const top3 = rawData.slice(0, 3);
+            const podiumOrder = [top3[1], top3[0], top3[2]]; 
+            
+            let podiumHTML = `<div class="flex flex-col md:flex-row justify-center items-end gap-4">`;
+            
+            podiumOrder.forEach((s, i) => {
+                const isFirst = i === 1;
+                const podiumClass = isFirst ? 'podium-1' : (i === 0 ? 'podium-2' : 'podium-3');
+                const medal = isFirst ? '🥇' : (i === 0 ? '🥈' : '🥉');
+                const titles = getTitles(s);
+                const glow = isFirst ? 'shadow-[0_0_30px_rgba(250,204,21,0.2)]' : '';
+                const changeIndicator = getRankChangeHtml(s.nim, s.rank);
+
+                podiumHTML += `
+                <div onclick="openModal('${s.nim}')" class="glass-card ${podiumClass} ${glow} w-full md:w-1/3 rounded-3xl p-6 flex flex-col items-center justify-center relative hover:bg-white/10 transition-all cursor-pointer group">
+                    <div class="absolute -top-6 text-4xl shadow-xl rounded-full bg-[#1e1e2e] p-3 border border-gray-700 z-20 group-hover:scale-110 transition-transform">${medal}</div>
+                    
+                    <div class="mt-8 text-center w-full">
+                        <div class="flex justify-center items-center mb-2">
+                             <div class="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">Rank ${s.rank}</div>
+                             ${changeIndicator}
+                        </div>
+                        <h3 class="text-xl font-bold text-white leading-tight mb-1 line-clamp-1 group-hover:text-violet-300 transition-colors">${s.nama}</h3>
+                        <p class="text-xs text-gray-500 font-mono mb-4">${s.nim}</p>
+                        
+                        <div class="py-2 px-4 rounded-xl bg-black/20 mb-4 border border-white/5">
+                             <div class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">${s.na.toFixed(2)}</div>
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-1.5 min-h-[1.5rem]">
+                            ${titles.slice(0, 3).map(t => `<span class="badge-title ${t.class}">${t.text}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            podiumHTML += `</div>`;
+            podiumContainer.innerHTML = podiumHTML;
+
+            // Render Rest of the Grid
+            const rest = rawData.slice(3);
+            let gridHTML = '';
+            rest.forEach(s => {
+                const titles = getTitles(s);
+                let gradeColor = 'text-red-400';
+                if (s.grade.startsWith('A')) gradeColor = 'text-green-400';
+                else if (s.grade.startsWith('B')) gradeColor = 'text-blue-400';
+                else if (s.grade.startsWith('C')) gradeColor = 'text-yellow-400';
+                
+                const changeIndicator = getRankChangeHtml(s.nim, s.rank);
+
+                gridHTML += `
+                <div onclick="openModal('${s.nim}')" class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 text-7xl font-black group-hover:opacity-10 transition-opacity text-white select-none">#${s.rank}</div>
+                    
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="pr-8">
+                            <h4 class="font-bold text-white text-md line-clamp-1 group-hover:text-violet-300 transition-colors">${s.nama}</h4>
+                            <div class="flex items-center mt-1">
+                                <p class="text-xs text-gray-500 font-mono">${s.nim}</p>
+                                ${changeIndicator}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-end relative z-10 mb-4">
+                        <div class="bg-black/20 rounded-lg px-3 py-1.5 border border-white/5">
+                            <span class="text-[9px] text-gray-500 uppercase block tracking-wider">Total Score</span>
+                            <span class="text-xl font-bold text-white">${s.na.toFixed(2)}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] text-gray-500 uppercase block tracking-wider">Grade</span>
+                            <span class="text-xl font-black ${gradeColor}">${s.grade}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-white/5 flex flex-wrap gap-1 min-h-[1.5rem] relative z-10">
+                         ${titles.length > 0 ? titles.slice(0, 2).map(t => `<span class="badge-title ${t.class}">${t.text}</span>`).join('') : '<span class="text-[10px] text-gray-600 italic px-1">Competent</span>'}
+                    </div>
+                </div>`;
+            });
+            gridContainer.innerHTML = gridHTML;
+        }
+
+        // --- MODAL & CHART ---
+        const modal = document.getElementById('modal');
+        let chartInstance = null;
+
+        window.openModal = (nim) => {
+            const s = rawData.find(st => st.nim === nim);
+            if(!s) return;
+
+            document.getElementById('modal-name').innerText = s.nama;
+            document.getElementById('modal-nim').innerHTML = `<i class="fa-regular fa-id-card mr-2"></i> ${s.nim}`;
+            document.getElementById('modal-na').innerText = s.na.toFixed(2);
+            document.getElementById('modal-grade').innerText = s.grade;
+            document.getElementById('modal-rank-badge').innerHTML = `<i class="fa-solid fa-crown mr-2 text-[10px]"></i> RANK #${s.rank}`;
+            document.getElementById('modal-change-badge').innerHTML = getRankChangeText(s.nim, s.rank);
+            
+            document.getElementById('stat-cbt').innerText = s.cbt.toFixed(2);
+            document.getElementById('stat-soca').innerText = s.soca.toFixed(2);
+            
+            const praktikumAvg = (s.his + s.anat) / 2;
+            document.getElementById('stat-praktikum').innerText = praktikumAvg.toFixed(2);
+
+            const titles = getTitles(s);
+            document.getElementById('modal-titles').innerHTML = titles.map(t => `<span class="px-3 py-1 rounded-full text-xs font-bold border ${t.class}">${t.text}</span>`).join('');
+
+            modal.classList.add('show');
+
+            const ctx = document.getElementById('spiderwebChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(139, 92, 246, 0.5)'); 
+            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.05)');
+
+            chartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['SOCA (20%)', 'Fisiologi (6%)', 'Histologi (8%)', 'Anatomi (11%)', 'Portofolio (5%)', 'CBT (50%)'],
+                    datasets: [{
+                        label: 'Skor Mahasiswa',
+                        data: [s.soca, s.fis, s.his, s.anat, s.port, s.cbt],
+                        backgroundColor: gradient,
+                        borderColor: '#8b5cf6',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#8b5cf6',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            pointLabels: { 
+                                color: '#9ca3af',
+                                font: { size: 11, family: 'Poppins' } 
+                            },
+                            ticks: { display: false, backdropColor: 'transparent', max: 100 },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#d1d5db',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+        };
+
+        window.closeModal = () => {
+            modal.classList.remove('show');
+        };
+
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('#student-grid .glass-card');
+            let found = false;
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if(text.includes(term)) {
+                    card.style.display = "block";
+                    found = true;
+                } else {
+                    card.style.display = "none";
+                }
+            });
+            document.getElementById('not-found').style.display = found ? 'none' : 'block';
+        });
+
+        renderAll();
+
+    </script>
+</body>
+</html>
