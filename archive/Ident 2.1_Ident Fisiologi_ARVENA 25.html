@@ -77,7 +77,7 @@
         .flashcard-scene {
             perspective: 1000px;
             width: 100%;
-            height: 350px;
+            height: 380px;
         }
         .flashcard {
             width: 100%;
@@ -105,8 +105,9 @@
         }
         .flashcard-back {
             transform: rotateY(180deg);
-            background: rgba(6, 52, 59, 0.8);
+            background: rgba(6, 52, 59, 0.9);
             border: 1px solid rgba(21, 176, 196, 0.4);
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6);
         }
 
         /* Fade Animation for View Transition */
@@ -254,12 +255,16 @@
                 back: "1. Berbicara/mendengar aktif\n2. Menahan kencing\n3. Manset terlalu kecil/terhalang"
             },
             {
+                front: "Bagaimana Klasifikasi Tekanan Darah menurut AHA?",
+                back: "• Normal: <120 dan <80\n• Elevated: 120-129 dan <80\n• Stage 1: 130-139 atau 80-89\n• Stage 2: ≥140 atau ≥90\n• Krisis Hipertensi: >180 dan/atau >120"
+            },
+            {
                 front: "Sebutkan faktor yang mempengaruhi Kesanggupan Kardiovaskular!",
                 back: "Genetik, Umur, Jenis kelamin, Aktivitas fisik, Komposisi lemak tubuh, dan Kebiasaan merokok."
             },
             {
                 front: "Apa itu Kapasitas Residu Fungsional (KRF)?",
-                back: "Besarnya udara yang tersisa dalam paru pada akhir ekspirasi normal (KRF = VCE + VR). Laki-laki: 2200 ml, Perempuan: 1800 ml."
+                back: "Besarnya udara yang tersisa dalam paru pada akhir ekspirasi normal (KRF = VCE + VR). \n\nLaki-laki: 2200 ml\nPerempuan: 1800 ml"
             },
             {
                 front: "Sebutkan Kriteria Acceptability Spirometri (Minimal 3)!",
@@ -267,11 +272,11 @@
             },
             {
                 front: "Jelaskan fase-fase bunyi Korotkoff!",
-                back: "Fase 1: Tajam (Sistolik)\nFase 2: Lembut\nFase 3: Nyaring/keras\nFase 4: Lembut/teredam\nFase 5: Hilang / laminar (Diastolik)"
+                back: "• Fase 1: Tajam (Sistolik)\n• Fase 2: Lembut\n• Fase 3: Nyaring/keras\n• Fase 4: Lembut/teredam\n• Fase 5: Hilang / laminar (Diastolik)"
             },
             {
                 front: "Bagaimana interpretasi nilai Indeks 50 pada Harvard Step Test?",
-                back: "Kesanggupan Kurang (<55 cara lambat, atau <50 cara cepat)."
+                back: "Kesanggupan Kurang\n(<55 jika memakai cara lambat, atau <50 jika memakai cara cepat)."
             }
         ];
 
@@ -430,15 +435,62 @@
                 <div class="glass p-8 rounded-3xl w-full max-w-4xl mb-8 max-h-[70vh] overflow-y-auto">
                     <h2 class="text-3xl font-extrabold text-teal-300 mb-6 border-b border-teal-500/30 pb-4">Penjelasan Lengkap Fisiologi Paru & Kardiovaskular</h2>
                     
-                    <div class="space-y-6 text-teal-50 leading-relaxed">
+                    <div class="space-y-8 text-teal-50 leading-relaxed">
                         <section>
                             <h3 class="text-xl font-bold text-cyan-300 mb-2">1. Sistem Kardiovaskular & Tekanan Darah</h3>
                             <p class="mb-2">Tekanan darah arteri rata-rata (MAP) diatur sangat ketat untuk memastikan perfusi organ yang cukup tanpa membebani jantung berlebih. Faktor utamanya adalah:</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
+                            <ul class="list-disc list-inside ml-4 space-y-1 mb-6">
                                 <li><strong>Cardiac Output (CO):</strong> Dipengaruhi oleh denyut jantung (simpatis/parasimpatis) dan Stroke Volume (aliran balik vena, pompa respirasi, efek hisap jantung).</li>
                                 <li><strong>Total Peripheral Resistance (TPR):</strong> Dipengaruhi oleh jari-jari arteriol (kontrol metabolik lokal, kontrol vasokonstriktor ekstrinsik) dan viskositas darah.</li>
                             </ul>
-                            <p class="mt-2 text-teal-200 italic">Interpretasi TD (JNC VIII/AHA): < 120/80 adalah Normal. 130-139 / 80-89 adalah Hipertensi Stage 1.</p>
+                            
+                            <div class="bg-teal-900/40 p-5 rounded-2xl border border-teal-500/30 shadow-lg">
+                                <h4 class="font-bold text-teal-300 mb-3 border-b border-teal-600/50 pb-2">Klasifikasi Tekanan Darah (AHA/JNC):</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-teal-50 mt-2">
+                                        <thead class="text-xs text-teal-200 uppercase bg-teal-950/50">
+                                            <tr>
+                                                <th class="px-4 py-3 rounded-tl-lg">Kategori</th>
+                                                <th class="px-4 py-3">Sistolik (mmHg)</th>
+                                                <th class="px-4 py-3 text-center"></th>
+                                                <th class="px-4 py-3 rounded-tr-lg">Diastolik (mmHg)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-teal-800/50">
+                                            <tr class="hover:bg-teal-800/20 transition-colors">
+                                                <td class="px-4 py-3 font-semibold text-green-300">Normal</td>
+                                                <td class="px-4 py-3">&lt; 120</td>
+                                                <td class="px-4 py-3 text-xs text-center text-teal-400">dan</td>
+                                                <td class="px-4 py-3">&lt; 80</td>
+                                            </tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors">
+                                                <td class="px-4 py-3 font-semibold text-yellow-300">Elevated (Meningkat)</td>
+                                                <td class="px-4 py-3">120 - 129</td>
+                                                <td class="px-4 py-3 text-xs text-center text-teal-400">dan</td>
+                                                <td class="px-4 py-3">&lt; 80</td>
+                                            </tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors">
+                                                <td class="px-4 py-3 font-semibold text-orange-400">Hipertensi Stage 1</td>
+                                                <td class="px-4 py-3">130 - 139</td>
+                                                <td class="px-4 py-3 text-xs text-center text-teal-400">atau</td>
+                                                <td class="px-4 py-3">80 - 89</td>
+                                            </tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors">
+                                                <td class="px-4 py-3 font-semibold text-red-400">Hipertensi Stage 2</td>
+                                                <td class="px-4 py-3">&ge; 140</td>
+                                                <td class="px-4 py-3 text-xs text-center text-teal-400">atau</td>
+                                                <td class="px-4 py-3">&ge; 90</td>
+                                            </tr>
+                                            <tr class="bg-red-900/20 hover:bg-red-900/40 transition-colors">
+                                                <td class="px-4 py-3 font-bold text-red-500">Krisis Hipertensi<br><span class="text-xs font-normal text-red-300/80">(Emergency)</span></td>
+                                                <td class="px-4 py-3 font-bold">&gt; 180</td>
+                                                <td class="px-4 py-3 text-xs text-center text-red-300">dan/atau</td>
+                                                <td class="px-4 py-3 font-bold">&gt; 120</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </section>
 
                         <section>
@@ -449,7 +501,7 @@
                                 <li><strong>Fase 2-4:</strong> Swishing, bising, hingga meredam.</li>
                                 <li><strong>Fase 5:</strong> Silence (Hilang) -> Aliran laminar sepenuhnya -> Tekanan Diastolik.</li>
                             </ul>
-                            <p class="mt-2">Akurasi terganggu jika berbicara (↑10/10), manset kekecilan, punggung/lengan tidak disangga.</p>
+                            <p class="mt-2 text-sm text-teal-200 bg-teal-900/30 inline-block px-3 py-1 rounded">Akurasi terganggu jika berbicara (↑10/10), manset kekecilan, punggung/lengan tidak disangga.</p>
                         </section>
 
                         <section>
@@ -486,7 +538,7 @@
                             </div>
 
                             <p class="mt-4 mb-2"><strong>Interpretasi Gangguan Fungsi Paru:</strong></p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm md:text-base">
                                 <li><strong>Penyakit Paru Obstruksi:</strong> Gangguan aliran udara karena penyempitan saluran (Contoh: PPOK, Asma, Emfisema). Ditandai FEV1/FVC < 75%.</li>
                                 <li><strong>Penyakit Paru Restriksi:</strong> Gangguan pengembangan paru (Contoh: Fibrosis, Efusi pleura). Ditandai FVC rendah, FEV1/FVC normal atau meningkat.</li>
                             </ul>
@@ -653,14 +705,22 @@
 
                     <div class="flashcard-scene mb-8" id="flashcard-scene">
                         <div class="flashcard glass ${flipClass}" id="flashcard">
-                            <div class="flashcard-face flashcard-front rounded-3xl">
-                                <span class="absolute top-4 left-4 text-xs font-bold text-teal-400 uppercase tracking-widest border border-teal-500/30 px-2 py-1 rounded">Question</span>
-                                <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md">${card.front}</h3>
-                                <span class="absolute bottom-4 text-xs text-teal-300/60 animate-pulse">Ketuk untuk membalik</span>
+                            <div class="flashcard-face flashcard-front rounded-3xl px-8">
+                                <span class="absolute top-4 left-4 text-xs font-bold text-teal-300 uppercase tracking-widest border border-teal-500/30 bg-teal-900/40 px-3 py-1 rounded">Soal</span>
+                                <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md mt-6">${card.front}</h3>
+                                
+                                <div class="mt-8 flex items-center gap-2 px-6 py-2 rounded-full border border-cyan-400 text-cyan-300 font-bold bg-cyan-900/30 shadow-[0_0_15px_rgba(21,176,196,0.3)] animate-pulse pointer-events-none">
+                                    <span>Ketuk untuk Lihat Jawaban</span>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-3 3m0 0l-3-3m3 3V9"></path></svg>
+                                </div>
                             </div>
-                            <div class="flashcard-face flashcard-back rounded-3xl">
-                                <span class="absolute top-4 right-4 text-xs font-bold text-cyan-400 uppercase tracking-widest border border-cyan-500/30 px-2 py-1 rounded">Answer</span>
-                                <p class="text-lg md:text-xl font-medium text-cyan-50 whitespace-pre-line leading-relaxed">${card.back}</p>
+                            
+                            <div class="flashcard-face flashcard-back rounded-3xl px-8 flex flex-col justify-center">
+                                <span class="absolute top-4 right-4 text-xs font-bold text-cyan-300 uppercase tracking-widest border border-cyan-500/30 bg-cyan-900/40 px-3 py-1 rounded">Jawaban</span>
+                                <div class="w-full max-w-lg text-left mt-6">
+                                    <p class="text-lg md:text-xl font-medium text-cyan-50 whitespace-pre-line leading-relaxed">${card.back}</p>
+                                </div>
+                                <span class="absolute bottom-4 text-xs font-medium text-teal-300/60">Ketuk untuk menutup jawaban</span>
                             </div>
                         </div>
                     </div>
