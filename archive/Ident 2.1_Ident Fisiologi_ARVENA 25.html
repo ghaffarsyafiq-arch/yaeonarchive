@@ -75,14 +75,14 @@
 
         /* Flashcard Styles */
         .flashcard-scene {
-            perspective: 1000px;
+            perspective: 1500px;
             width: 100%;
-            height: 380px;
+            height: 400px;
         }
         .flashcard {
             width: 100%;
             height: 100%;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
             transform-style: preserve-3d;
             cursor: pointer;
             position: relative;
@@ -100,14 +100,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
         }
         .flashcard-back {
             transform: rotateY(180deg);
-            background: rgba(6, 52, 59, 0.9);
-            border: 1px solid rgba(21, 176, 196, 0.4);
+            background: rgba(6, 52, 59, 0.95);
+            border: 1px solid rgba(21, 176, 196, 0.5);
             box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6);
+            overflow-y: auto;
         }
 
         /* Fade Animation for View Transition */
@@ -251,38 +252,50 @@
         // --- DATA FLASHCARDS ---
         const flashcardData = [
             {
-                front: "Sebutkan 3 faktor yang mempengaruhi akurasi pengukuran tekanan darah!",
-                back: "1. Berbicara/mendengar aktif\n2. Menahan kencing\n3. Manset terlalu kecil/terhalang"
+                front: "Sebutkan 3 faktor utama yang mempengaruhi akurasi pengukuran tekanan darah!",
+                back: "1. Berbicara / mendengar aktif (Naik 10/10 mmHg)<br>2. Menahan kencing (Naik 15/10 mmHg)<br>3. Manset terlalu kecil atau terhalang pakaian"
             },
             {
-                front: "Bagaimana Klasifikasi Tekanan Darah menurut AHA?",
-                back: "• Normal: <120 dan <80\n• Elevated: 120-129 dan <80\n• Stage 1: 130-139 atau 80-89\n• Stage 2: ≥140 atau ≥90\n• Krisis Hipertensi: >180 dan/atau >120"
+                front: "Bagaimana Klasifikasi Tekanan Darah menurut pedoman AHA/JNC?",
+                back: "<ul class='list-disc list-inside text-left inline-block text-sm md:text-base'><li><strong>Normal:</strong> < 120 dan < 80</li><li><strong>Elevated:</strong> 120-129 dan < 80</li><li><strong>Stage 1:</strong> 130-139 atau 80-89</li><li><strong>Stage 2:</strong> ≥ 140 atau ≥ 90</li><li><strong>Krisis Hipertensi:</strong> > 180 dan/atau > 120</li></ul>"
             },
             {
-                front: "Sebutkan faktor yang mempengaruhi Kesanggupan Kardiovaskular!",
-                back: "Genetik, Umur, Jenis kelamin, Aktivitas fisik, Komposisi lemak tubuh, dan Kebiasaan merokok."
+                front: "Apa pengertian dari Spirometri?",
+                back: "Pemeriksaan untuk <strong>mengukur volume udara dan aliran/kecepatan udara</strong> yang dihirup dan dihembuskan oleh paru-paru, guna mendeteksi gangguan fungsi pernapasan (obstruksi/restriksi)."
             },
             {
-                front: "Apa itu Kapasitas Residu Fungsional (KRF)?",
-                back: "Besarnya udara yang tersisa dalam paru pada akhir ekspirasi normal (KRF = VCE + VR). \n\nLaki-laki: 2200 ml\nPerempuan: 1800 ml"
+                front: "Sebutkan Siklus Pemeriksaan SVC (Kapasitas Vital Paru)!",
+                back: "Start &rarr; Bernapas biasa &rarr; Beep &rarr; <strong>Ekspirasi maksimal</strong> &rarr; <strong>Inspirasi maksimal</strong> &rarr; <strong>Ekspirasi maksimal</strong> &rarr; Napas biasa (3x) &rarr; Stop."
             },
             {
-                front: "Sebutkan Kriteria Acceptability Spirometri (Minimal 3)!",
-                back: "1. Permulaan uji baik hingga selesai\n2. Waktu ekspirasi minimal 6 detik\n3. Grafik memiliki puncak & bebas artefak."
+                front: "Sebutkan Siklus Pemeriksaan FVC (Kapasitas Vital Paksa)!",
+                back: "Start &rarr; <strong>Inspirasi maksimal</strong> &rarr; <strong>Ekspirasi maksimal secara kuat dan dipaksa</strong> (selama minimal 6 detik) &rarr; Stop."
+            },
+            {
+                front: "Apa saja Kontraindikasi dari pemeriksaan Spirometri?",
+                back: "<ul class='list-disc list-inside text-left inline-block text-sm'><li>Hemoptisis (Batuk Darah)</li><li>Pneumotoraks</li><li>Status kardiovaskular tidak stabil</li><li>Infark miokard & Emboli paru</li><li>Aneurisma serebri/toraks</li><li>Pasca bedah mata & Kecemasan (mual/vertigo)</li></ul>"
+            },
+            {
+                front: "Sebutkan Kriteria Acceptability & Reproducibility Spirometri!",
+                back: "<strong>Acceptability:</strong><br>1. Permulaan uji baik hingga selesai.<br>2. Ekspirasi min 6 detik.<br>3. Grafik puncak bebas artefak.<br><br><strong>Reproducibility:</strong><br>Dilakukan 3x percobaan, selisih 2 nilai FVC & FEV1 terbesar <5% atau <100mL."
             },
             {
                 front: "Jelaskan fase-fase bunyi Korotkoff!",
-                back: "• Fase 1: Tajam (Sistolik)\n• Fase 2: Lembut\n• Fase 3: Nyaring/keras\n• Fase 4: Lembut/teredam\n• Fase 5: Hilang / laminar (Diastolik)"
+                back: "<strong>Fase 1:</strong> Tajam, tapping (Sistolik)<br><strong>Fase 2:</strong> Lebih lembut<br><strong>Fase 3:</strong> Nyaring dan lebih keras<br><strong>Fase 4:</strong> Lembut, seperti teredam<br><strong>Fase 5:</strong> Hilang / terdapat aliran laminar (Diastolik)"
             },
             {
                 front: "Bagaimana interpretasi nilai Indeks 50 pada Harvard Step Test?",
-                back: "Kesanggupan Kurang\n(<55 jika memakai cara lambat, atau <50 jika memakai cara cepat)."
+                back: "<strong class='text-red-300 text-2xl'>Kesanggupan Kurang</strong><br><br><span class='text-sm'>(< 55 jika memakai cara lambat, atau < 50 jika memakai cara cepat).</span>"
+            },
+            {
+                front: "Jelaskan mekanisme Valsava Maneuver terhadap Tekanan Darah!",
+                back: "Ekspirasi paksa dengan glotis tertutup &rarr; Tekanan intratoraks naik &rarr; Aliran balik vena terhambat &rarr; Volume darah ke jantung turun (CO turun) &rarr; Tekanan Darah Menurun."
             }
         ];
 
         // --- STATE MANAGEMENT ---
         let state = {
-            view: 'home', // home, materi, extract, ringkasan, penjelasan, training, adventure, war, sandisk
+            view: 'home', 
             quizIndex: 0,
             quizScore: 0,
             quizAnswered: false,
@@ -294,9 +307,9 @@
 
         // --- RENDER FUNCTIONS ---
         function render() {
-            appContainer.innerHTML = ''; // Clear container
+            appContainer.innerHTML = ''; 
             const wrapper = document.createElement('div');
-            wrapper.className = 'w-full max-w-4xl w-full fade-in flex flex-col items-center justify-center';
+            wrapper.className = 'w-full max-w-5xl w-full fade-in flex flex-col items-center justify-center mx-auto';
 
             switch (state.view) {
                 case 'home': wrapper.innerHTML = renderHome(); break;
@@ -316,7 +329,6 @@
 
         function setView(newView) {
             state.view = newView;
-            // Reset states when leaving/entering modes
             if(newView === 'training' || newView === 'war') {
                 state.quizIndex = 0;
                 state.quizScore = 0;
@@ -332,7 +344,7 @@
         // --- HTML TEMPLATES ---
         function getHeader(title) {
             return `
-                <div class="text-center mb-10 w-full">
+                <div class="text-center mb-10 w-full mt-4">
                     <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-cyan-400">
                         ${title}
                     </h1>
@@ -366,14 +378,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
                     <button data-view="ringkasan" class="glass-btn rounded-2xl p-6 text-center group">
                         <span class="text-xl font-bold text-teal-100 block mb-2">Ringkasan</span>
-                        <span class="text-sm text-teal-300">Intisari penting dari presentasi</span>
+                        <span class="text-sm text-teal-300">Intisari penting dari modul & PPT</span>
                     </button>
                     <button data-view="penjelasan" class="glass-btn rounded-2xl p-6 text-center group">
                         <span class="text-xl font-bold text-cyan-100 block mb-2">Penjelasan Lengkap</span>
-                        <span class="text-sm text-cyan-300">Teori mendetail berdasarkan PPT</span>
+                        <span class="text-sm text-cyan-300">Teori mendetail dan mekanisme fisiologi</span>
                     </button>
                 </div>
-                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali ke Home</button>
             `;
         }
 
@@ -390,7 +402,7 @@
                         <span class="text-sm text-cyan-300">Masuk ke arena ujian dan ingatan</span>
                     </button>
                 </div>
-                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali ke Home</button>
             `;
         }
 
@@ -407,23 +419,23 @@
                         <span class="text-sm text-cyan-300">Mode Flashcard untuk hafalan cepat</span>
                     </button>
                 </div>
-                <button data-view="extract" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+                <button data-view="extract" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali ke Extract</button>
             `;
         }
 
         // --- MATERI CONTENT ---
         function renderRingkasan() {
             return `
-                <div class="glass p-8 rounded-3xl w-full max-w-3xl mb-8">
-                    <h2 class="text-2xl font-bold text-teal-300 mb-4 border-b border-teal-500/30 pb-2">Ringkasan Fisiologi</h2>
-                    <ul class="list-disc list-inside space-y-3 text-teal-50 leading-relaxed text-sm md:text-base">
-                        <li><strong class="text-cyan-200">Tekanan Darah:</strong> Dipengaruhi Curah Jantung (CO) & Total Resistensi Perifer (TPR). Formula: <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">MAP = CO x TPR</span>.</li>
-                        <li><strong class="text-cyan-200">Curah Jantung (CO):</strong> Didapatkan dari perhitungan Stroke Volume x Heart Rate (SV x HR).</li>
-                        <li><strong class="text-cyan-200">Uji Korotkoff:</strong> Terdiri dari 5 Fase. Fase 1 (Sistolik, tapping), Fase 5 (Diastolik, hilang/aliran menjadi laminar).</li>
-                        <li><strong class="text-cyan-200">Faktor Vaskular TD:</strong> Pompa jantung, volume darah, viskositas, dan elastisitas pembuluh.</li>
-                        <li><strong class="text-cyan-200">Kebugaran & Harvard Step:</strong> Kesanggupan dipengaruhi Umur, Genetik, Aktivitas Fisik, dll. Indeks dihitung dari lama tes / (2 x total nadi pemulihan).</li>
-                        <li><strong class="text-cyan-200">Spirometri:</strong> Tes fungsi paru. Menghasilkan VT (Tidal), VCI (Cad. Inspirasi), VCE (Cad. Ekspirasi), VR (Residu). Kapasitas Vital Paksa (FVC) dan FEV1 penting untuk menilai kelainan paru.</li>
-                        <li><strong class="text-cyan-200">Kapasitas Residu Fungsional:</strong> KRF = VCE + VR (Sisa udara di paru setelah ekspirasi normal).</li>
+                <div class="glass p-8 rounded-3xl w-full max-w-4xl mb-8 max-h-[70vh] overflow-y-auto">
+                    <h2 class="text-2xl font-bold text-teal-300 mb-4 border-b border-teal-500/30 pb-2">Ringkasan Fisiologi Blok 2.1</h2>
+                    <ul class="list-disc list-inside space-y-4 text-teal-50 leading-relaxed text-sm md:text-base">
+                        <li><strong class="text-cyan-200">Tekanan Darah (TD):</strong> Dipengaruhi langsung oleh Curah Jantung (CO) & Total Resistensi Perifer (TPR). Formula utama: <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">MAP = CO x TPR</span> dan <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">CO = SV x HR</span>.</li>
+                        <li><strong class="text-cyan-200">Faktor Vaskular TD:</strong> Dipengaruhi oleh pompa jantung, volume darah, viskositas darah, dan elastisitas pembuluh darah.</li>
+                        <li><strong class="text-cyan-200">Pengukuran Auskultasi (Korotkoff):</strong> Aliran laminar adalah aliran lurus normal (tanpa suara). Aliran turbulen memunculkan bunyi saat pembuluh tertekan sebagian. Fase 1 menandai Sistolik, Fase 5 (bunyi hilang) menandai Diastolik.</li>
+                        <li><strong class="text-cyan-200">Pengaruh Posisi & Aktivitas:</strong> Saat berdiri terjadi hipotensi ortostatik yang dikompensasi tubuh sehingga TD naik. Kerja otot/otak dan stress meningkatkan kebutuhan O2 dan memicu sekresi hormon yang menaikkan TD. Manuver Valsava (ekspirasi paksa tahan napas) menurunkan venous return sehingga TD sesaat menurun.</li>
+                        <li><strong class="text-cyan-200">Harvard Step Test:</strong> Mengukur kesanggupan kardiovaskular. Dipengaruhi oleh genetik, umur, jenis kelamin, aktivitas, lemak, rokok. Terdiri dari rumus lambat dan cepat. Indeks < 50 (Cara Cepat) diartikan kesanggupan kurang.</li>
+                        <li><strong class="text-cyan-200">Spirometri:</strong> Tes fungsi paru untuk menilai volume & kecepatan udara. Digunakan untuk membedakan kelainan obstruksi (PPOK, Asma -> FEV1/FVC turun < 75%) dan restriksi (Fibrosis -> FVC turun, rasio normal/tinggi). Kriteria pentingnya adalah <em>Acceptability</em> (awal baik, min 6 detik, tanpa artefak) dan <em>Reproducibility</em>.</li>
+                        <li><strong class="text-cyan-200">Kapasitas Residu Fungsional (KRF):</strong> Udara tersisa pasca ekspirasi normal. <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">KRF = VCE + VR</span>.</li>
                     </ul>
                 </div>
                 <button data-view="materi" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
@@ -432,17 +444,20 @@
 
         function renderPenjelasan() {
             return `
-                <div class="glass p-8 rounded-3xl w-full max-w-4xl mb-8 max-h-[70vh] overflow-y-auto">
-                    <h2 class="text-3xl font-extrabold text-teal-300 mb-6 border-b border-teal-500/30 pb-4">Penjelasan Lengkap Fisiologi Paru & Kardiovaskular</h2>
+                <div class="glass p-6 md:p-10 rounded-3xl w-full max-w-5xl mb-8 max-h-[80vh] overflow-y-auto">
+                    <h2 class="text-3xl font-extrabold text-teal-300 mb-6 border-b border-teal-500/30 pb-4 sticky top-0 bg-venous-dark/80 backdrop-blur-md z-10 pt-2">Penjelasan Lengkap Modul Fisiologi</h2>
                     
-                    <div class="space-y-8 text-teal-50 leading-relaxed">
+                    <div class="space-y-10 text-teal-50 leading-relaxed">
+                        
+                        <!-- BAGIAN 1: KARDIOVASKULAR -->
                         <section>
-                            <h3 class="text-xl font-bold text-cyan-300 mb-2">1. Sistem Kardiovaskular & Tekanan Darah</h3>
-                            <p class="mb-2">Tekanan darah arteri rata-rata (MAP) diatur sangat ketat untuk memastikan perfusi organ yang cukup tanpa membebani jantung berlebih. Faktor utamanya adalah:</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 mb-6">
-                                <li><strong>Cardiac Output (CO):</strong> Dipengaruhi oleh denyut jantung (simpatis/parasimpatis) dan Stroke Volume (aliran balik vena, pompa respirasi, efek hisap jantung).</li>
-                                <li><strong>Total Peripheral Resistance (TPR):</strong> Dipengaruhi oleh jari-jari arteriol (kontrol metabolik lokal, kontrol vasokonstriktor ekstrinsik) dan viskositas darah.</li>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">1</span> Kardiovaskular & Tekanan Darah</h3>
+                            <p class="mb-3">Tekanan darah arteri rata-rata (MAP) diatur ketat untuk perfusi organ. Faktor utamanya adalah:</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 mb-4">
+                                <li><strong>Cardiac Output (CO):</strong> Curah jantung (Volume kuncup x Denyut jantung). Dipengaruhi aliran balik vena, pompa respirasi, dan saraf otonom (simpatis/parasimpatis).</li>
+                                <li><strong>Total Peripheral Resistance (TPR):</strong> Resistensi perifer. Dipengaruhi jari-jari arteriol, panjang pembuluh, dan viskositas darah.</li>
                             </ul>
+                            <p class="mb-4"><strong>Faktor vaskular spesifik:</strong> Gerakan pompa jantung, Volume darah, Viskositas darah (jumlah SDM), Elastisitas dinding pembuluh.</p>
                             
                             <div class="bg-teal-900/40 p-5 rounded-2xl border border-teal-500/30 shadow-lg">
                                 <h4 class="font-bold text-teal-300 mb-3 border-b border-teal-600/50 pb-2">Klasifikasi Tekanan Darah (AHA/JNC):</h4>
@@ -457,96 +472,142 @@
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-teal-800/50">
-                                            <tr class="hover:bg-teal-800/20 transition-colors">
-                                                <td class="px-4 py-3 font-semibold text-green-300">Normal</td>
-                                                <td class="px-4 py-3">&lt; 120</td>
-                                                <td class="px-4 py-3 text-xs text-center text-teal-400">dan</td>
-                                                <td class="px-4 py-3">&lt; 80</td>
-                                            </tr>
-                                            <tr class="hover:bg-teal-800/20 transition-colors">
-                                                <td class="px-4 py-3 font-semibold text-yellow-300">Elevated (Meningkat)</td>
-                                                <td class="px-4 py-3">120 - 129</td>
-                                                <td class="px-4 py-3 text-xs text-center text-teal-400">dan</td>
-                                                <td class="px-4 py-3">&lt; 80</td>
-                                            </tr>
-                                            <tr class="hover:bg-teal-800/20 transition-colors">
-                                                <td class="px-4 py-3 font-semibold text-orange-400">Hipertensi Stage 1</td>
-                                                <td class="px-4 py-3">130 - 139</td>
-                                                <td class="px-4 py-3 text-xs text-center text-teal-400">atau</td>
-                                                <td class="px-4 py-3">80 - 89</td>
-                                            </tr>
-                                            <tr class="hover:bg-teal-800/20 transition-colors">
-                                                <td class="px-4 py-3 font-semibold text-red-400">Hipertensi Stage 2</td>
-                                                <td class="px-4 py-3">&ge; 140</td>
-                                                <td class="px-4 py-3 text-xs text-center text-teal-400">atau</td>
-                                                <td class="px-4 py-3">&ge; 90</td>
-                                            </tr>
-                                            <tr class="bg-red-900/20 hover:bg-red-900/40 transition-colors">
-                                                <td class="px-4 py-3 font-bold text-red-500">Krisis Hipertensi<br><span class="text-xs font-normal text-red-300/80">(Emergency)</span></td>
-                                                <td class="px-4 py-3 font-bold">&gt; 180</td>
-                                                <td class="px-4 py-3 text-xs text-center text-red-300">dan/atau</td>
-                                                <td class="px-4 py-3 font-bold">&gt; 120</td>
-                                            </tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-green-300">Normal</td><td class="px-4 py-3">&lt; 120</td><td class="px-4 py-3 text-xs text-center text-teal-400">dan</td><td class="px-4 py-3">&lt; 80</td></tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-yellow-300">Elevated</td><td class="px-4 py-3">120 - 129</td><td class="px-4 py-3 text-xs text-center text-teal-400">dan</td><td class="px-4 py-3">&lt; 80</td></tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-orange-400">Stage 1</td><td class="px-4 py-3">130 - 139</td><td class="px-4 py-3 text-xs text-center text-teal-400">atau</td><td class="px-4 py-3">80 - 89</td></tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-red-400">Stage 2</td><td class="px-4 py-3">&ge; 140</td><td class="px-4 py-3 text-xs text-center text-teal-400">atau</td><td class="px-4 py-3">&ge; 90</td></tr>
+                                            <tr class="bg-red-900/20 hover:bg-red-900/40 transition-colors"><td class="px-4 py-3 font-bold text-red-500">Krisis</td><td class="px-4 py-3 font-bold">&gt; 180</td><td class="px-4 py-3 text-xs text-center text-red-300">dan/atau</td><td class="px-4 py-3 font-bold">&gt; 120</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </section>
 
+                        <!-- BAGIAN 2: AUSKULTASI & POSISI (NEW MERGED) -->
                         <section>
-                            <h3 class="text-xl font-bold text-cyan-300 mb-2">2. Pengukuran Auskultasi (Korotkoff)</h3>
-                            <p class="mb-2">Terjadi transisi aliran turbulen (bunyi bising) akibat tekanan manset di atas arteri, kembali menjadi aliran laminar (tidak bersuara) saat manset dilepas perlahan.</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
-                                <li><strong>Fase 1:</strong> Tapping tajam -> Tekanan Sistolik.</li>
-                                <li><strong>Fase 2-4:</strong> Swishing, bising, hingga meredam.</li>
-                                <li><strong>Fase 5:</strong> Silence (Hilang) -> Aliran laminar sepenuhnya -> Tekanan Diastolik.</li>
-                            </ul>
-                            <p class="mt-2 text-sm text-teal-200 bg-teal-900/30 inline-block px-3 py-1 rounded">Akurasi terganggu jika berbicara (↑10/10), manset kekecilan, punggung/lengan tidak disangga.</p>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">2</span> Auskultasi, Posisi & Aktivitas</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <strong class="text-teal-200 text-lg">Prinsip Aliran & Korotkoff</strong>
+                                    <p class="text-sm mt-1">Aliran laminar (lurus) tidak bersuara, terjadi jika pembuluh tidak tertekan (tekanan manset di bawah diastolik). Aliran turbulen terjadi saat manset menekan pembuluh (tekanan di antara sistolik dan diastolik). <strong>Fase 1:</strong> Tapping (Sistolik) &rarr; <strong>Fase 5:</strong> Silence/Aliran kembali laminar (Diastolik).</p>
+                                </div>
+
+                                <div class="bg-black/20 p-4 rounded-xl border-l-4 border-cyan-500">
+                                    <strong class="text-cyan-300 text-lg">Pengaruh Posisi Tubuh</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 mt-2">
+                                        <li><strong>Berbaring:</strong> Aliran darah merata, sejajar jantung.</li>
+                                        <li><strong>Duduk:</strong> Punggung bersandar, kaki menggantung &rarr; tidak ada beban vaskular ekstra karena otot rileks.</li>
+                                        <li><strong>Berdiri:</strong> Timbul hipotensi ortostatik awal, dikompensasi tubuh (homeostasis) sehingga tekanan darah cenderung meningkat untuk melawan gravitasi.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-black/20 p-4 rounded-xl border-l-4 border-teal-500">
+                                    <strong class="text-teal-300 text-lg">Kerja Otot, Otak & Pernapasan</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 mt-2">
+                                        <li><strong>Kerja Fisik/Otak & Stress:</strong> Kebutuhan suplai Oksigen meningkat, hormon stres rilis &rarr; Denyut Jantung naik &rarr; TD naik.</li>
+                                        <li><strong>Inspirasi:</strong> Tekanan intratoraks turun, abdomen naik &rarr; volume darah tersedot ke vena toraks & atrium kanan.</li>
+                                        <li><strong>Ekspirasi:</strong> Tekanan toraks naik &rarr; katup vena mencegah aliran balik (backflow).</li>
+                                        <li><strong>Manuver Valsava:</strong> Ekspirasi paksa dengan glotis tertutup &rarr; tekanan toraks sangat tinggi &rarr; aliran balik vena terhambat &rarr; TD sesaat menurun drastis.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </section>
 
+                        <!-- BAGIAN 3: KESANGGUPAN KARDIOVASKULAR (HARVARD STEP TEST) (NEW) -->
                         <section>
-                            <h3 class="text-xl font-bold text-cyan-300 mb-2">3. Fisiologi Respirasi & Ventilasi</h3>
-                            <p class="mb-2"><strong>Ventilasi Pulmoner:</strong> Pergerakan udara antara udara luar dengan paru-paru akibat perubahan tekanan intratoraks. Terdiri atas:</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 mb-3">
-                                <li><strong>Inhalasi (Inspirasi):</strong> Terjadi akibat volume intratoraks meningkat dan tekanan menurun (udara masuk).</li>
-                                <li><strong>Ekspirasi:</strong> Terjadi akibat volume intratoraks menurun dan tekanan meningkat (udara keluar).</li>
-                            </ul>
-                            <p class="mb-2"><strong>Proses Respirasi terbagi dua:</strong></p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
-                                <li><strong>Respirasi Eksternal:</strong> Pertukaran O2 dan CO2 di kapiler alveoli (paru). O2 diserap ke kapiler, sedangkan CO2 dibuang ke alveoli.</li>
-                                <li><strong>Respirasi Internal:</strong> Pertukaran O2 dan CO2 di kapiler jaringan (sel tubuh). O2 diserap ke sel, sedangkan CO2 dibuang ke kapiler.</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="text-xl font-bold text-cyan-300 mb-2">4. Volume dan Kapasitas Paru (Spirometri)</h3>
-                            <p class="mb-2">Kapasitas adalah gabungan dari dua atau lebih volume paru. Berdasarkan grafik spirogram, nilai normalnya untuk <span class="text-teal-200 font-bold">Laki-laki (L)</span> dan <span class="text-cyan-200 font-bold">Perempuan (P)</span> adalah sekitar:</p>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">3</span> Kesanggupan Kardiovaskular (Harvard Step Test)</h3>
+                            <p class="mb-3">Kapasitas untuk kinerja fisik terampil dan pemulihan yang cepat. Diperkirakan dari besarnya perubahan denyut jantung dan kecepatannya kembali normal pasca-latihan.</p>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <ul class="list-disc list-inside ml-4 space-y-2 text-sm">
-                                    <li><strong class="text-teal-200">Volume Tidal (VT):</strong> <br> <span class="ml-5">L: 500 mL | P: ~500 mL</span> <br><span class="text-teal-400/80 text-xs ml-5">Udara napas biasa.</span></li>
-                                    <li><strong class="text-teal-200">Vol. Cadangan Inspirasi (VCI):</strong> <br> <span class="ml-5">L: 3000-3300 mL | P: 1900 mL</span> <br><span class="text-teal-400/80 text-xs ml-5">Ekstra udara yang ditarik maksimal.</span></li>
-                                    <li><strong class="text-teal-200">Vol. Cadangan Ekspirasi (VCE):</strong> <br> <span class="ml-5">L: 1000 mL | P: ~700 mL</span> <br><span class="text-teal-400/80 text-xs ml-5">Ekstra udara yang dihembus maksimal.</span></li>
-                                    <li><strong class="text-teal-200">Volume Residu (VR):</strong> <br> <span class="ml-5">L: 1200 mL | P: ~1100 mL</span> <br><span class="text-teal-400/80 text-xs ml-5">Sisa udara yang tertahan di paru.</span></li>
+                                <div class="bg-teal-900/30 p-4 rounded-xl shadow-inner border border-teal-500/20">
+                                    <strong class="text-teal-200">Faktor yang Memengaruhi:</strong>
+                                    <ul class="list-disc list-inside text-sm mt-2 text-teal-50">
+                                        <li>Genetik & Umur</li>
+                                        <li>Jenis Kelamin</li>
+                                        <li>Aktivitas Fisik</li>
+                                        <li>Komposisi Lemak Tubuh</li>
+                                        <li>Kebiasaan Merokok</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-teal-900/30 p-4 rounded-xl shadow-inner border border-teal-500/20">
+                                    <strong class="text-teal-200">Metode & Rumus (Bangku 33 cm):</strong>
+                                    <div class="text-sm mt-2 text-teal-50 space-y-2">
+                                        <p><strong>Cara Cepat:</strong><br><span class="font-mono bg-black/30 px-1">(Lama detik x 100) / (5.5 x Nadi 30" Pertama)</span></p>
+                                        <p><strong>Cara Lambat:</strong><br><span class="font-mono bg-black/30 px-1">(Lama detik x 100) / (2 x Total ke-3 Nadi 30")</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-cyan-100 bg-cyan-900/40 p-3 rounded-lg border border-cyan-500/30"><strong>Interpretasi Cara Cepat:</strong> &lt;50 (Kurang), 50-80 (Sedang), &gt;80 (Baik).</p>
+                        </section>
+
+                        <!-- BAGIAN 4: SPIROMETRI (UPDATED) -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">4</span> Pemeriksaan Spirometri</h3>
+                            <p class="mb-4 text-lg">Pemeriksaan mengukur volume dan aliran/kecepatan udara paru untuk mendeteksi gangguan pernapasan.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-teal-900/30 p-5 rounded-xl border border-teal-500/20 shadow-inner">
+                                    <strong class="text-teal-300 block mb-3 border-b border-teal-500/30 pb-1">✅ Indikasi (Beberapa):</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-teal-50">
+                                        <li>Deteksi penyakit paru / Batuk kronik</li>
+                                        <li>Evaluasi perokok > 40 tahun</li>
+                                        <li>Penderajatan asma akut</li>
+                                        <li>Persiapan bedah / reseksi paru</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-900/20 p-5 rounded-xl border border-red-500/20 shadow-inner">
+                                    <strong class="text-red-300 block mb-3 border-b border-red-500/30 pb-1">❌ Kontraindikasi (Beberapa):</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-red-100">
+                                        <li>Hemoptisis (batuk darah) / Pneumotoraks</li>
+                                        <li>Kardiovaskular tidak stabil / Infark / Emboli</li>
+                                        <li>Aneurisma & Pasca bedah mata</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/20 p-4 rounded-xl border-l-4 border-cyan-500 mb-4">
+                                <strong class="text-cyan-300 block mb-2">Kriteria Validitas Spirogram</strong>
+                                <ul class="list-disc list-inside text-sm space-y-1">
+                                    <li><strong>Acceptability:</strong> Awal uji baik, ekspirasi minimal 6 detik, puncak grafik jelas dan bebas artefak.</li>
+                                    <li><strong>Reproducibility:</strong> Dilakukan 3x, selisih 2 nilai FVC dan FEV1 terbesar &lt;5% atau &lt;100mL.</li>
                                 </ul>
-                                <ul class="list-disc list-inside ml-4 space-y-2 text-sm">
-                                    <li><strong class="text-cyan-200">Kapasitas Inspirasi (KI):</strong> <br> <span class="ml-5">L: 3500 mL | P: ~2400 mL</span> <br><span class="text-cyan-400/80 text-xs ml-5">Formula: VT + VCI</span></li>
-                                    <li><strong class="text-cyan-200">Kap. Residu Fungsional (KRF):</strong> <br> <span class="ml-5">L: 2200 mL | P: 1800 mL</span> <br><span class="text-cyan-400/80 text-xs ml-5">Formula: VCE + VR</span></li>
-                                    <li><strong class="text-cyan-200">Kapasitas Vital (KV):</strong> <br> <span class="ml-5">L: 4500-4800 mL | P: ~3100 mL</span> <br><span class="text-cyan-400/80 text-xs ml-5">Formula: VT + VCI + VCE</span></li>
-                                    <li><strong class="text-cyan-200">Kapasitas Paru Total (KPT):</strong> <br> <span class="ml-5">L: 5700-6000 mL | P: ~4200 mL</span> <br><span class="text-cyan-400/80 text-xs ml-5">Formula: KV + VR</span></li>
+                            </div>
+                            
+                            <p class="text-sm font-mono text-teal-100 bg-teal-900/40 p-3 rounded-lg"><strong class="text-cyan-200">Siklus SVC:</strong> Napas biasa &rarr; Ekspirasi Max &rarr; Inspirasi Maks &rarr; Ekspirasi Maks &rarr; Napas biasa.<br><strong class="text-teal-200">Siklus FVC:</strong> Inspirasi Maks &rarr; Ekspirasi Maks Paksa (min. 6 detik).</p>
+                        </section>
+
+                        <!-- BAGIAN 5: RESPIRASI & VOLUME PARU -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">5</span> Volume Paru & Interpretasi Gangguan</h3>
+                            <p class="mb-3">Nilai normal <span class="text-teal-200 font-bold">Laki-laki (L)</span> dan <span class="text-cyan-200 font-bold">Perempuan (P)</span> adalah:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <ul class="list-disc list-inside ml-4 space-y-2 text-sm bg-black/10 p-4 rounded-xl border border-teal-500/20">
+                                    <li><strong class="text-teal-200">Volume Tidal (VT):</strong> L/P ~500 mL</li>
+                                    <li><strong class="text-teal-200">Vol. Cad. Inspirasi (VCI):</strong> L: 3300 | P: 1900 mL</li>
+                                    <li><strong class="text-teal-200">Vol. Cad. Ekspirasi (VCE):</strong> L: 1000 | P: ~700 mL</li>
+                                    <li><strong class="text-teal-200">Volume Residu (VR):</strong> L: 1200 | P: ~1100 mL</li>
+                                </ul>
+                                <ul class="list-disc list-inside ml-4 space-y-2 text-sm bg-black/10 p-4 rounded-xl border border-teal-500/20">
+                                    <li><strong class="text-cyan-200">Kapasitas Inspirasi (KI):</strong> L: 3800 | P: 2400 mL</li>
+                                    <li><strong class="text-cyan-200">Kap. Residu Fungsional (KRF):</strong> L: 2200 | P: 1800 mL</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Vital (KV):</strong> L: 4500-4800 | P: ~3100 mL</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Paru Total (KPT):</strong> L: 6000 | P: ~4200 mL</li>
                                 </ul>
                             </div>
 
-                            <p class="mt-4 mb-2"><strong>Interpretasi Gangguan Fungsi Paru:</strong></p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm md:text-base">
-                                <li><strong>Penyakit Paru Obstruksi:</strong> Gangguan aliran udara karena penyempitan saluran (Contoh: PPOK, Asma, Emfisema). Ditandai FEV1/FVC < 75%.</li>
-                                <li><strong>Penyakit Paru Restriksi:</strong> Gangguan pengembangan paru (Contoh: Fibrosis, Efusi pleura). Ditandai FVC rendah, FEV1/FVC normal atau meningkat.</li>
-                            </ul>
-                            <p class="mt-4 bg-teal-900/40 p-3 rounded border border-teal-500/20 text-sm"><strong>Syarat tes (Acceptability):</strong> Permulaan baik hingga selesai, ekspirasi min. 6 detik, dan grafik memiliki puncak bebas artefak.</p>
+                            <div class="bg-red-900/10 p-4 rounded-xl border-l-4 border-red-500">
+                                <strong class="text-red-300">Interpretasi Kelainan Paru:</strong>
+                                <ul class="list-disc list-inside text-sm mt-2">
+                                    <li><strong>Obstruktif:</strong> Kesulitan menghembuskan udara (PPOK, Asma, Emfisema). Ditandai rasio FEV1/FVC &lt; 75%.</li>
+                                    <li><strong>Restriktif:</strong> Gangguan pengembangan / sulit menarik napas (Fibrosis, Efusi). Ditandai FVC rendah, rasio FEV1/FVC Normal/Tinggi.</li>
+                                </ul>
+                            </div>
                         </section>
+
                     </div>
                 </div>
-                <button data-view="materi" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+                <button data-view="materi" class="px-8 py-3 font-bold rounded-full bg-teal-700 text-white hover:bg-teal-600 shadow-lg hover:scale-105 transition-all">Tutup Penjelasan</button>
             `;
         }
 
@@ -598,10 +659,8 @@
                 const bIdx = parseInt(btn.getAttribute('data-idx'));
                 btn.classList.remove('hover:bg-teal-500/20');
                 if (bIdx === q.ans) {
-                    // Correct -> Blue
                     btn.className = "w-full text-left p-4 rounded-xl mb-3 font-bold bg-blue-600 border border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all";
                 } else if (bIdx === idx && idx !== q.ans) {
-                    // Incorrect -> Red
                     btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium bg-red-600/80 border border-red-500 text-white transition-all";
                 } else {
                     btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium glass-btn opacity-40 transition-all";
@@ -611,7 +670,7 @@
             document.getElementById('nextTrainBtn').classList.remove('hidden');
         }
 
-        // --- ARVENA WAR MODE (No feedback, score at end) ---
+        // --- ARVENA WAR MODE ---
         function renderWar() {
             if (state.quizIndex >= qaData.length) {
                 state.view = 'war-result';
@@ -660,7 +719,6 @@
                 }
             });
 
-            // Auto next question after 1s
             setTimeout(() => {
                 state.quizIndex++;
                 state.quizAnswered = false;
@@ -697,7 +755,7 @@
             const flipClass = state.flashcardFlipped ? 'is-flipped' : '';
 
             return `
-                <div class="w-full max-w-2xl flex flex-col items-center">
+                <div class="w-full max-w-3xl flex flex-col items-center">
                     <div class="w-full flex justify-between text-teal-300 mb-4 font-semibold text-sm px-4">
                         <span class="tracking-widest uppercase"><span class="text-cyan-400">&#128427;</span> Sandisk Arvena</span>
                         <span>Card ${state.flashcardIndex + 1} / ${flashcardData.length}</span>
@@ -705,52 +763,55 @@
 
                     <div class="flashcard-scene mb-8" id="flashcard-scene">
                         <div class="flashcard glass ${flipClass}" id="flashcard">
-                            <div class="flashcard-face flashcard-front rounded-3xl px-8">
-                                <span class="absolute top-4 left-4 text-xs font-bold text-teal-300 uppercase tracking-widest border border-teal-500/30 bg-teal-900/40 px-3 py-1 rounded">Soal</span>
-                                <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md mt-6">${card.front}</h3>
+                            
+                            <!-- BAGIAN DEPAN (SOAL) -->
+                            <div class="flashcard-face flashcard-front rounded-3xl px-8 md:px-12 flex flex-col">
+                                <span class="absolute top-5 left-5 text-xs font-bold text-teal-300 uppercase tracking-widest border border-teal-500/30 bg-teal-900/40 px-3 py-1 rounded shadow-sm">💡 Soal</span>
                                 
-                                <div class="mt-8 flex items-center gap-2 px-6 py-2 rounded-full border border-cyan-400 text-cyan-300 font-bold bg-cyan-900/30 shadow-[0_0_15px_rgba(21,176,196,0.3)] animate-pulse pointer-events-none">
-                                    <span>Ketuk untuk Lihat Jawaban</span>
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-3 3m0 0l-3-3m3 3V9"></path></svg>
-                                </div>
+                                <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md my-auto w-full">${card.front}</h3>
+                                
+                                <button class="mt-auto mx-auto flex items-center gap-2 px-6 py-3 rounded-full border-2 border-cyan-400 text-cyan-100 font-bold bg-cyan-900/60 shadow-[0_0_20px_rgba(21,176,196,0.4)] hover:bg-cyan-800 transition-all animate-pulse hover:animate-none group">
+                                    <span class="tracking-wide">LIHAT JAWABAN</span>
+                                    <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-3 3m0 0l-3-3m3 3V9"></path></svg>
+                                </button>
                             </div>
                             
-                            <div class="flashcard-face flashcard-back rounded-3xl px-8 flex flex-col justify-center">
-                                <span class="absolute top-4 right-4 text-xs font-bold text-cyan-300 uppercase tracking-widest border border-cyan-500/30 bg-cyan-900/40 px-3 py-1 rounded">Jawaban</span>
-                                <div class="w-full max-w-lg text-left mt-6">
-                                    <p class="text-lg md:text-xl font-medium text-cyan-50 whitespace-pre-line leading-relaxed">${card.back}</p>
+                            <!-- BAGIAN BELAKANG (JAWABAN) -->
+                            <div class="flashcard-face flashcard-back rounded-3xl px-8 md:px-12 flex flex-col justify-center">
+                                <span class="absolute top-5 right-5 text-xs font-bold text-cyan-300 uppercase tracking-widest border border-cyan-500/30 bg-cyan-900/60 px-3 py-1 rounded shadow-sm">📝 Jawaban</span>
+                                
+                                <div class="w-full text-center mt-6 my-auto">
+                                    <div class="text-lg md:text-xl font-medium text-cyan-50 leading-relaxed inline-block text-left w-full">${card.back}</div>
                                 </div>
-                                <span class="absolute bottom-4 text-xs font-medium text-teal-300/60">Ketuk untuk menutup jawaban</span>
+
+                                <button class="mt-auto mx-auto text-xs font-bold text-teal-300/80 hover:text-white uppercase tracking-widest border-b border-teal-500/50 pb-1">Tutup Jawaban &uarr;</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between w-full px-4">
-                        <button id="prevFlashBtn" class="px-6 py-2 rounded-full border border-teal-600 text-teal-300 hover:bg-teal-600 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-teal-300" ${state.flashcardIndex === 0 ? 'disabled' : ''}>&larr; Prev</button>
+                    <div class="flex items-center justify-between w-full px-4 mt-2">
+                        <button id="prevFlashBtn" class="px-6 py-3 rounded-full border-2 border-teal-600 text-teal-300 hover:bg-teal-600 hover:text-white font-bold transition-colors disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-teal-300" ${state.flashcardIndex === 0 ? 'disabled' : ''}>&larr; SEBELUMNYA</button>
                         
-                        <button data-view="adventure" class="text-sm font-bold text-teal-500 hover:text-teal-300 transition-colors uppercase tracking-widest">Exit</button>
+                        <button data-view="adventure" class="text-sm font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-widest">EXIT</button>
 
-                        <button id="nextFlashBtn" class="px-6 py-2 rounded-full bg-cyan-700 text-white hover:bg-cyan-600 font-bold transition-colors disabled:opacity-30 disabled:hover:bg-cyan-700" ${state.flashcardIndex === flashcardData.length - 1 ? 'disabled' : ''}>Next &rarr;</button>
+                        <button id="nextFlashBtn" class="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-600 to-teal-500 text-white hover:from-cyan-500 hover:to-teal-400 font-bold shadow-lg transition-all disabled:opacity-20 disabled:grayscale" ${state.flashcardIndex === flashcardData.length - 1 ? 'disabled' : ''}>SELANJUTNYA &rarr;</button>
                     </div>
                 </div>
             `;
         }
 
-
         // --- EVENT DELEGATION & LISTENERS ---
         function attachEventListeners() {
             const container = document.getElementById('app');
             
-            // View Navigation (data-view attributes)
             const viewButtons = container.querySelectorAll('[data-view]');
             viewButtons.forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // prevent flashcard flip if button is inside
+                    e.stopPropagation(); 
                     setView(btn.getAttribute('data-view'));
                 });
             });
 
-            // Training Mode Options
             const trainOpts = container.querySelectorAll('.opt-btn-train');
             trainOpts.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -758,7 +819,6 @@
                 });
             });
 
-            // Training Next Button
             const nextTrain = document.getElementById('nextTrainBtn');
             if (nextTrain) {
                 nextTrain.addEventListener('click', () => {
@@ -768,7 +828,6 @@
                 });
             }
 
-            // War Mode Options
             const warOpts = container.querySelectorAll('.opt-btn-war');
             warOpts.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -776,7 +835,7 @@
                 });
             });
 
-            // Flashcard Interaction
+            // FLASHCARD FLIP CLICK EVENT
             const flashcardScene = document.getElementById('flashcard-scene');
             if(flashcardScene) {
                 const flashcard = document.getElementById('flashcard');
@@ -786,7 +845,6 @@
                 });
             }
             
-            // Flashcard Navigation
             const prevFlash = document.getElementById('prevFlashBtn');
             const nextFlash = document.getElementById('nextFlashBtn');
             
