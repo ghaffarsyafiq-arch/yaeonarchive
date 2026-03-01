@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identify ARVENA</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --venous-dark: #021114;
+            --venous-teal: #06343b;
+            --venous-light: #0d6b77;
+            --venous-cyan: #15b0c4;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--venous-dark);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Gradient Mesh Animation Effect */
+        .mesh-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--venous-dark) 0%, #031c21 100%);
+        }
+        .blob {
+            position: absolute;
+            filter: blur(90px);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 12s infinite ease-in-out alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--venous-teal); }
+        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--venous-light); animation-delay: -4s; animation-direction: alternate-reverse;}
+        .blob-3 { top: 40%; left: 20%; width: 40vw; height: 40vw; background: #084852; animation-duration: 18s; }
+        .blob-4 { bottom: 20%; left: 60%; width: 35vw; height: 35vw; background: var(--venous-cyan); opacity: 0.3; animation-delay: -8s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10%, 15%) scale(1.1); }
+        }
+
+        /* Glassmorphism Styles */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-btn {
+            background: rgba(21, 176, 196, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(21, 176, 196, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background: rgba(21, 176, 196, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(21, 176, 196, 0.5);
+        }
+
+        /* Flashcard Styles */
+        .flashcard-scene {
+            perspective: 1000px;
+            width: 100%;
+            height: 350px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: rgba(6, 52, 59, 0.8);
+            border: 1px solid rgba(21, 176, 196, 0.4);
+        }
+
+        /* Fade Animation for View Transition */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: var(--venous-light); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--venous-cyan); }
+    </style>
+</head>
+<body>
+
+    <!-- Gradient Mesh Background -->
+    <div class="mesh-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+        <!-- Content gets injected here by JavaScript -->
+    </div>
+
+    <script>
+        // --- DATA Q&A (Pretest & Posttest) ---
+        const qaData = [
+            {
+                q: "Rata-rata tekanan darah dipengaruhi langsung oleh:",
+                options: [
+                    "Curah jantung dan total resistensi perifer",
+                    "Curah jantung dan stroke volume",
+                    "Jari-jari dan panjang pembuluh",
+                    "Darah balik dan pompa respirasi",
+                    "Saraf otonom"
+                ],
+                ans: 0
+            },
+            {
+                q: "Curah jantung (CO) dapat dicari melalui perhitungan:",
+                options: [
+                    "TPR x SP",
+                    "SV x HR",
+                    "Lama Waktu x 100",
+                    "Diastole x Sistole",
+                    "VCE + VR"
+                ],
+                ans: 1
+            },
+            {
+                q: "Pada Uji Korotkoff, tekanan diastole mulai ditentukan saat bunyi ada di fase/urutan:",
+                options: ["1", "2", "3", "4", "5"],
+                ans: 4
+            },
+            {
+                q: "Faktor yang memengaruhi kontrol vasokontriktor lokal menurut data kuis:",
+                options: [
+                    "Pompa respirasi",
+                    "Aliran darah",
+                    "Simpatis-parasimpatis",
+                    "Katup jantung",
+                    "Jari-jari pembuluh darah"
+                ],
+                ans: 2
+            },
+            {
+                q: "Volume udara yang masih berada di paru setelah ekspirasi maksimal disebut?",
+                options: [
+                    "Volume tidal",
+                    "Volume cadangan inspirasi",
+                    "Kapasitas vital",
+                    "Volume residu",
+                    "Kapasitas paru total"
+                ],
+                ans: 3
+            },
+            {
+                q: "Pernyataan A: Bunyi hilang saat tekanan manset dibawah tekanan diastolik. Pernyataan B: Menjadi aliran laminar. Hubungannya?",
+                options: [
+                    "A benar, B salah, tidak berhubungan",
+                    "A salah, B benar, tidak berhubungan",
+                    "A benar, B benar, Berhubungan",
+                    "A benar, B benar, tidak berhubungan",
+                    "A salah, B salah, Berhubungan"
+                ],
+                ans: 2
+            },
+            {
+                q: "Faktor vaskular yang mempengaruhi aliran darah, KECUALI:",
+                options: [
+                    "Gerakan pompa jantung",
+                    "Volume darah",
+                    "Viskositas darah",
+                    "Denyut jantung",
+                    "Elastisitas dinding pembuluh"
+                ],
+                ans: 3
+            },
+            {
+                q: "Di bawah ini yang BUKAN termasuk indikasi pemeriksaan spirometri adalah:",
+                options: [
+                    "Batuk kronis > 40 tahun",
+                    "Riwayat penyakit paru",
+                    "Kardiovaskular tidak stabil",
+                    "Sakit dada",
+                    "Clubbing finger"
+                ],
+                ans: 2
+            },
+            {
+                q: "Seseorang memeriksa tekanan darahnya dan mendapatkan nilai 130/85 mmHg. Interpretasinya adalah:",
+                options: [
+                    "Normal",
+                    "Elevated",
+                    "Hipertensi Stage 2",
+                    "Hipertensi darurat",
+                    "Hipertensi Stage 1"
+                ],
+                ans: 4
+            },
+            {
+                q: "Kapasitas residu fungsional (KRF) didapatkan dari penjumlahan:",
+                options: [
+                    "Volume Cadangan Ekspirasi + Volume Residu",
+                    "Volume Cadangan Inspirasi + Volume Tidal",
+                    "Kapasitas Vital + Volume Residu",
+                    "Volume Tidal + Volume Cadangan Ekspirasi",
+                    "Volume Inspirasi + Ekspirasi"
+                ],
+                ans: 0
+            }
+        ];
+
+        // --- DATA FLASHCARDS ---
+        const flashcardData = [
+            {
+                front: "Sebutkan 3 faktor yang mempengaruhi akurasi pengukuran tekanan darah!",
+                back: "1. Berbicara/mendengar aktif\n2. Menahan kencing\n3. Manset terlalu kecil/terhalang"
+            },
+            {
+                front: "Sebutkan faktor yang mempengaruhi Kesanggupan Kardiovaskular!",
+                back: "Genetik, Umur, Jenis kelamin, Aktivitas fisik, Komposisi lemak tubuh, dan Kebiasaan merokok."
+            },
+            {
+                front: "Apa itu Kapasitas Residu Fungsional (KRF)?",
+                back: "Besarnya udara yang tersisa dalam paru pada akhir ekspirasi normal (KRF = VCE + VR). Laki-laki: 2200 ml, Perempuan: 1800 ml."
+            },
+            {
+                front: "Sebutkan Kriteria Acceptability Spirometri (Minimal 3)!",
+                back: "1. Permulaan uji baik hingga selesai\n2. Waktu ekspirasi minimal 6 detik\n3. Grafik memiliki puncak & bebas artefak."
+            },
+            {
+                front: "Jelaskan fase-fase bunyi Korotkoff!",
+                back: "Fase 1: Tajam (Sistolik)\nFase 2: Lembut\nFase 3: Nyaring/keras\nFase 4: Lembut/teredam\nFase 5: Hilang / laminar (Diastolik)"
+            },
+            {
+                front: "Bagaimana interpretasi nilai Indeks 50 pada Harvard Step Test?",
+                back: "Kesanggupan Kurang (<55 cara lambat, atau <50 cara cepat)."
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            view: 'home', // home, materi, extract, ringkasan, penjelasan, training, adventure, war, sandisk
+            quizIndex: 0,
+            quizScore: 0,
+            quizAnswered: false,
+            flashcardIndex: 0,
+            flashcardFlipped: false
+        };
+
+        const appContainer = document.getElementById('app');
+
+        // --- RENDER FUNCTIONS ---
+        function render() {
+            appContainer.innerHTML = ''; // Clear container
+            const wrapper = document.createElement('div');
+            wrapper.className = 'w-full max-w-4xl w-full fade-in flex flex-col items-center justify-center';
+
+            switch (state.view) {
+                case 'home': wrapper.innerHTML = renderHome(); break;
+                case 'materi': wrapper.innerHTML = renderMateri(); break;
+                case 'extract': wrapper.innerHTML = renderExtract(); break;
+                case 'ringkasan': wrapper.innerHTML = renderRingkasan(); break;
+                case 'penjelasan': wrapper.innerHTML = renderPenjelasan(); break;
+                case 'training': wrapper.innerHTML = renderTraining(); break;
+                case 'adventure': wrapper.innerHTML = renderAdventure(); break;
+                case 'war': wrapper.innerHTML = renderWar(); break;
+                case 'sandisk': wrapper.innerHTML = renderSandisk(); break;
+                case 'war-result': wrapper.innerHTML = renderWarResult(); break;
+            }
+            appContainer.appendChild(wrapper);
+            attachEventListeners();
+        }
+
+        function setView(newView) {
+            state.view = newView;
+            // Reset states when leaving/entering modes
+            if(newView === 'training' || newView === 'war') {
+                state.quizIndex = 0;
+                state.quizScore = 0;
+                state.quizAnswered = false;
+            }
+            if(newView === 'sandisk') {
+                state.flashcardIndex = 0;
+                state.flashcardFlipped = false;
+            }
+            render();
+        }
+
+        // --- HTML TEMPLATES ---
+        function getHeader(title) {
+            return `
+                <div class="text-center mb-10 w-full">
+                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-cyan-400">
+                        ${title}
+                    </h1>
+                    <div class="h-1 w-24 bg-gradient-to-r from-teal-400 to-cyan-500 mx-auto rounded-full shadow-lg"></div>
+                </div>
+            `;
+        }
+
+        function renderHome() {
+            return `
+                ${getHeader('Identify ARVENA')}
+                <p class="text-lg md:text-xl text-teal-100 mb-10 text-center font-medium opacity-90">Sistem Eksplorasi Fisiologi Paru & Kardiovaskular</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+                    <button data-view="materi" class="glass-btn rounded-2xl p-8 text-center flex flex-col items-center justify-center group h-64">
+                        <svg class="w-16 h-16 mb-4 text-teal-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <span class="text-2xl font-bold text-white tracking-wide">Mode Materi</span>
+                        <span class="text-sm text-teal-200 mt-2">Pelajari ringkasan dan penjelasan lengkap</span>
+                    </button>
+                    <button data-view="extract" class="glass-btn rounded-2xl p-8 text-center flex flex-col items-center justify-center group h-64">
+                        <svg class="w-16 h-16 mb-4 text-cyan-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <span class="text-2xl font-bold text-white tracking-wide">Mode Extract</span>
+                        <span class="text-sm text-cyan-100 mt-2">Uji kemampuan dengan Kuis & Flashcards</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderMateri() {
+            return `
+                ${getHeader('Mode Materi')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                    <button data-view="ringkasan" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-teal-100 block mb-2">Ringkasan</span>
+                        <span class="text-sm text-teal-300">Intisari penting dari presentasi</span>
+                    </button>
+                    <button data-view="penjelasan" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-cyan-100 block mb-2">Penjelasan Lengkap</span>
+                        <span class="text-sm text-cyan-300">Teori mendetail berdasarkan PPT</span>
+                    </button>
+                </div>
+                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+            `;
+        }
+
+        function renderExtract() {
+            return `
+                ${getHeader('Mode Extract')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                    <button data-view="training" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-teal-100 block mb-2">Mode Training</span>
+                        <span class="text-sm text-teal-300">Latihan Soal dengan feedback instan</span>
+                    </button>
+                    <button data-view="adventure" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-cyan-100 block mb-2">Mode Adventure</span>
+                        <span class="text-sm text-cyan-300">Masuk ke arena ujian dan ingatan</span>
+                    </button>
+                </div>
+                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+            `;
+        }
+
+        function renderAdventure() {
+            return `
+                ${getHeader('Mode Adventure')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                    <button data-view="war" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-teal-100 block mb-2">Arvena War</span>
+                        <span class="text-sm text-teal-300">Uji Pre/Post Test tanpa ampun (Skor di akhir)</span>
+                    </button>
+                    <button data-view="sandisk" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-cyan-100 block mb-2">Sandisk Arvena</span>
+                        <span class="text-sm text-cyan-300">Mode Flashcard untuk hafalan cepat</span>
+                    </button>
+                </div>
+                <button data-view="extract" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+            `;
+        }
+
+        // --- MATERI CONTENT ---
+        function renderRingkasan() {
+            return `
+                <div class="glass p-8 rounded-3xl w-full max-w-3xl mb-8">
+                    <h2 class="text-2xl font-bold text-teal-300 mb-4 border-b border-teal-500/30 pb-2">Ringkasan Fisiologi</h2>
+                    <ul class="list-disc list-inside space-y-3 text-teal-50 leading-relaxed text-sm md:text-base">
+                        <li><strong class="text-cyan-200">Tekanan Darah:</strong> Dipengaruhi Curah Jantung (CO) & Total Resistensi Perifer (TPR). Formula: <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">MAP = CO x TPR</span>.</li>
+                        <li><strong class="text-cyan-200">Curah Jantung (CO):</strong> Didapatkan dari perhitungan Stroke Volume x Heart Rate (SV x HR).</li>
+                        <li><strong class="text-cyan-200">Uji Korotkoff:</strong> Terdiri dari 5 Fase. Fase 1 (Sistolik, tapping), Fase 5 (Diastolik, hilang/aliran menjadi laminar).</li>
+                        <li><strong class="text-cyan-200">Faktor Vaskular TD:</strong> Pompa jantung, volume darah, viskositas, dan elastisitas pembuluh.</li>
+                        <li><strong class="text-cyan-200">Kebugaran & Harvard Step:</strong> Kesanggupan dipengaruhi Umur, Genetik, Aktivitas Fisik, dll. Indeks dihitung dari lama tes / (2 x total nadi pemulihan).</li>
+                        <li><strong class="text-cyan-200">Spirometri:</strong> Tes fungsi paru. Menghasilkan VT (Tidal), VCI (Cad. Inspirasi), VCE (Cad. Ekspirasi), VR (Residu). Kapasitas Vital Paksa (FVC) dan FEV1 penting untuk menilai kelainan paru.</li>
+                        <li><strong class="text-cyan-200">Kapasitas Residu Fungsional:</strong> KRF = VCE + VR (Sisa udara di paru setelah ekspirasi normal).</li>
+                    </ul>
+                </div>
+                <button data-view="materi" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+            `;
+        }
+
+        function renderPenjelasan() {
+            return `
+                <div class="glass p-8 rounded-3xl w-full max-w-4xl mb-8 max-h-[70vh] overflow-y-auto">
+                    <h2 class="text-3xl font-extrabold text-teal-300 mb-6 border-b border-teal-500/30 pb-4">Penjelasan Lengkap Fisiologi Paru & Kardiovaskular</h2>
+                    
+                    <div class="space-y-6 text-teal-50 leading-relaxed">
+                        <section>
+                            <h3 class="text-xl font-bold text-cyan-300 mb-2">1. Sistem Kardiovaskular & Tekanan Darah</h3>
+                            <p class="mb-2">Tekanan darah arteri rata-rata (MAP) diatur sangat ketat untuk memastikan perfusi organ yang cukup tanpa membebani jantung berlebih. Faktor utamanya adalah:</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1">
+                                <li><strong>Cardiac Output (CO):</strong> Dipengaruhi oleh denyut jantung (simpatis/parasimpatis) dan Stroke Volume (aliran balik vena, pompa respirasi, efek hisap jantung).</li>
+                                <li><strong>Total Peripheral Resistance (TPR):</strong> Dipengaruhi oleh jari-jari arteriol (kontrol metabolik lokal, kontrol vasokonstriktor ekstrinsik) dan viskositas darah.</li>
+                            </ul>
+                            <p class="mt-2 text-teal-200 italic">Interpretasi TD (JNC VIII/AHA): < 120/80 adalah Normal. 130-139 / 80-89 adalah Hipertensi Stage 1.</p>
+                        </section>
+
+                        <section>
+                            <h3 class="text-xl font-bold text-cyan-300 mb-2">2. Pengukuran Auskultasi (Korotkoff)</h3>
+                            <p class="mb-2">Terjadi transisi aliran turbulen (bunyi bising) akibat tekanan manset di atas arteri, kembali menjadi aliran laminar (tidak bersuara) saat manset dilepas perlahan.</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1">
+                                <li><strong>Fase 1:</strong> Tapping tajam -> Tekanan Sistolik.</li>
+                                <li><strong>Fase 2-4:</strong> Swishing, bising, hingga meredam.</li>
+                                <li><strong>Fase 5:</strong> Silence (Hilang) -> Aliran laminar sepenuhnya -> Tekanan Diastolik.</li>
+                            </ul>
+                            <p class="mt-2">Akurasi terganggu jika berbicara (↑10/10), manset kekecilan, punggung/lengan tidak disangga.</p>
+                        </section>
+
+                        <section>
+                            <h3 class="text-xl font-bold text-cyan-300 mb-2">3. Fisiologi Respirasi & Ventilasi</h3>
+                            <p class="mb-2"><strong>Ventilasi Pulmoner:</strong> Pergerakan udara antara udara luar dengan paru-paru akibat perubahan tekanan intratoraks. Terdiri atas:</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 mb-3">
+                                <li><strong>Inhalasi (Inspirasi):</strong> Terjadi akibat volume intratoraks meningkat dan tekanan menurun (udara masuk).</li>
+                                <li><strong>Ekspirasi:</strong> Terjadi akibat volume intratoraks menurun dan tekanan meningkat (udara keluar).</li>
+                            </ul>
+                            <p class="mb-2"><strong>Proses Respirasi terbagi dua:</strong></p>
+                            <ul class="list-disc list-inside ml-4 space-y-1">
+                                <li><strong>Respirasi Eksternal:</strong> Pertukaran O2 dan CO2 di kapiler alveoli (paru). O2 diserap ke kapiler, sedangkan CO2 dibuang ke alveoli.</li>
+                                <li><strong>Respirasi Internal:</strong> Pertukaran O2 dan CO2 di kapiler jaringan (sel tubuh). O2 diserap ke sel, sedangkan CO2 dibuang ke kapiler.</li>
+                            </ul>
+                        </section>
+
+                        <section>
+                            <h3 class="text-xl font-bold text-cyan-300 mb-2">4. Volume dan Kapasitas Paru (Spirometri)</h3>
+                            <p class="mb-2">Kapasitas adalah gabungan dari dua atau lebih volume paru. Berdasarkan grafik spirogram, nilai normalnya (sekitar):</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                    <li><strong class="text-teal-200">Volume Tidal (VT):</strong> 500 mL (Napas biasa).</li>
+                                    <li><strong class="text-teal-200">Vol. Cadangan Inspirasi (VCI):</strong> 3000 mL (Ekstra hirup).</li>
+                                    <li><strong class="text-teal-200">Vol. Cadangan Ekspirasi (VCE):</strong> 1000 mL (Ekstra hembus).</li>
+                                    <li><strong class="text-teal-200">Volume Residu (VR):</strong> 1200 mL (Sisa di paru).</li>
+                                </ul>
+                                <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                    <li><strong class="text-cyan-200">Kapasitas Inspirasi (KI):</strong> 3500 mL (VT + VCI).</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Residu Fungsional (KRF):</strong> 2200 mL (VCE + VR).</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Vital (KV):</strong> 4500 mL (VT+VCI+VCE).</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Paru Total (KPT):</strong> 5700 mL (KV + VR).</li>
+                                </ul>
+                            </div>
+                            <p class="mt-2 mb-2"><strong>Interpretasi Gangguan Fungsi Paru:</strong></p>
+                            <ul class="list-disc list-inside ml-4 space-y-1">
+                                <li><strong>Penyakit Paru Obstruksi:</strong> Gangguan aliran udara karena penyempitan saluran (Contoh: PPOK, Asma, Emfisema). Ditandai FEV1/FVC < 75%.</li>
+                                <li><strong>Penyakit Paru Restriksi:</strong> Gangguan pengembangan paru (Contoh: Fibrosis, Efusi pleura). Ditandai FVC rendah, FEV1/FVC normal atau meningkat.</li>
+                            </ul>
+                            <p class="mt-4 bg-teal-900/40 p-3 rounded border border-teal-500/20 text-sm"><strong>Syarat tes (Acceptability):</strong> Permulaan baik hingga selesai, ekspirasi min. 6 detik, dan grafik memiliki puncak bebas artefak.</p>
+                        </section>
+                    </div>
+                </div>
+                <button data-view="materi" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+            `;
+        }
+
+        // --- TRAINING MODE (With immediate feedback) ---
+        function renderTraining() {
+            if (state.quizIndex >= qaData.length) {
+                return `
+                    <div class="glass p-8 rounded-3xl text-center">
+                        <h2 class="text-3xl font-bold text-teal-300 mb-4">Sesi Training Selesai!</h2>
+                        <p class="text-lg text-teal-100 mb-8">Anda telah menjawab semua pertanyaan.</p>
+                        <button data-view="extract" class="px-8 py-3 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 font-bold shadow-lg hover:scale-105 transition-transform text-white">Kembali ke Menu</button>
+                    </div>
+                `;
+            }
+
+            const q = qaData[state.quizIndex];
+            let optionsHTML = q.options.map((opt, i) => `
+                <button class="opt-btn-train glass-btn w-full text-left p-4 rounded-xl mb-3 font-medium hover:bg-teal-500/20 transition-all border border-teal-500/30" data-idx="${i}">
+                    <span class="inline-block w-8 font-bold text-cyan-300">${String.fromCharCode(65 + i)}.</span> ${opt}
+                </button>
+            `).join('');
+
+            return `
+                <div class="w-full max-w-3xl">
+                    <div class="flex justify-between text-teal-300 mb-4 font-semibold text-sm">
+                        <span>Mode Training (Feedback Aktif)</span>
+                        <span>Soal ${state.quizIndex + 1} / ${qaData.length}</span>
+                    </div>
+                    <div class="glass p-8 rounded-3xl mb-6">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-6 leading-relaxed">${q.q}</h3>
+                        <div>${optionsHTML}</div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button data-view="extract" class="text-teal-400 hover:text-white font-medium">&larr; Berhenti</button>
+                        <button id="nextTrainBtn" class="hidden px-8 py-3 rounded-full bg-cyan-600 hover:bg-cyan-500 font-bold shadow-lg text-white transition-all">Selanjutnya &rarr;</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleTrainingOptionClick(idx, btnElement) {
+            if (state.quizAnswered) return;
+            state.quizAnswered = true;
+            
+            const q = qaData[state.quizIndex];
+            const buttons = document.querySelectorAll('.opt-btn-train');
+            
+            buttons.forEach(btn => {
+                const bIdx = parseInt(btn.getAttribute('data-idx'));
+                btn.classList.remove('hover:bg-teal-500/20');
+                if (bIdx === q.ans) {
+                    // Correct -> Blue
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-bold bg-blue-600 border border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all";
+                } else if (bIdx === idx && idx !== q.ans) {
+                    // Incorrect -> Red
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium bg-red-600/80 border border-red-500 text-white transition-all";
+                } else {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium glass-btn opacity-40 transition-all";
+                }
+            });
+
+            document.getElementById('nextTrainBtn').classList.remove('hidden');
+        }
+
+        // --- ARVENA WAR MODE (No feedback, score at end) ---
+        function renderWar() {
+            if (state.quizIndex >= qaData.length) {
+                state.view = 'war-result';
+                return renderWarResult();
+            }
+
+            const q = qaData[state.quizIndex];
+            let optionsHTML = q.options.map((opt, i) => `
+                <button class="opt-btn-war glass-btn w-full text-left p-4 rounded-xl mb-3 font-medium hover:bg-teal-500/30 transition-all border border-teal-500/30" data-idx="${i}">
+                    <span class="inline-block w-8 font-bold text-cyan-300">${String.fromCharCode(65 + i)}.</span> ${opt}
+                </button>
+            `).join('');
+
+            return `
+                <div class="w-full max-w-3xl">
+                    <div class="flex justify-between text-teal-300 mb-4 font-semibold text-sm">
+                        <span class="text-red-300 font-bold uppercase tracking-widest">⚠️ Arvena War Active</span>
+                        <span>Stage ${state.quizIndex + 1} / ${qaData.length}</span>
+                    </div>
+                    <div class="glass border-red-900/30 p-8 rounded-3xl mb-6 shadow-[0_0_30px_rgba(255,0,0,0.05)]">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-6 leading-relaxed">${q.q}</h3>
+                        <div>${optionsHTML}</div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button data-view="adventure" class="text-red-400 hover:text-white font-medium">&larr; Menyerah</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleWarOptionClick(idx, btnElement) {
+            if (state.quizAnswered) return;
+            state.quizAnswered = true;
+            
+            const q = qaData[state.quizIndex];
+            if (idx === q.ans) state.quizScore++;
+            
+            const buttons = document.querySelectorAll('.opt-btn-war');
+            buttons.forEach(btn => {
+                const bIdx = parseInt(btn.getAttribute('data-idx'));
+                btn.classList.remove('hover:bg-teal-500/30');
+                if (bIdx === idx) {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-bold bg-teal-600 border border-teal-400 text-white transition-all";
+                } else {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium glass-btn opacity-40 transition-all";
+                }
+            });
+
+            // Auto next question after 1s
+            setTimeout(() => {
+                state.quizIndex++;
+                state.quizAnswered = false;
+                render();
+            }, 1000);
+        }
+
+        function renderWarResult() {
+            const percentage = Math.round((state.quizScore / qaData.length) * 100);
+            let message = "";
+            if (percentage === 100) message = "Sempurna! Pengetahuanmu tidak terbantahkan.";
+            else if (percentage >= 70) message = "Bagus sekali! Kesanggupan fisiologimu sangat kuat.";
+            else message = "Masih perlu belajar! Terus baca materi untuk menaklukkan ARVENA.";
+
+            return `
+                <div class="glass p-10 rounded-3xl text-center w-full max-w-2xl border-t-4 border-t-cyan-400">
+                    <h2 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-cyan-400 mb-2">BATTLE COMPLETE</h2>
+                    <p class="text-teal-200 mb-8 tracking-widest uppercase text-sm font-bold">Arvena War Result</p>
+                    
+                    <div class="text-7xl font-black text-white mb-4 drop-shadow-[0_0_20px_rgba(21,176,196,0.6)]">
+                        ${state.quizScore} <span class="text-3xl text-teal-400">/ ${qaData.length}</span>
+                    </div>
+                    
+                    <p class="text-xl text-cyan-100 mb-8 font-medium">${message}</p>
+                    
+                    <button data-view="adventure" class="px-8 py-3 rounded-full bg-gradient-to-r from-teal-600 to-cyan-600 font-bold shadow-lg hover:scale-105 transition-transform text-white">Kembali ke Base</button>
+                </div>
+            `;
+        }
+
+        // --- SANDISK ARVENA (FLASHCARDS) ---
+        function renderSandisk() {
+            const card = flashcardData[state.flashcardIndex];
+            const flipClass = state.flashcardFlipped ? 'is-flipped' : '';
+
+            return `
+                <div class="w-full max-w-2xl flex flex-col items-center">
+                    <div class="w-full flex justify-between text-teal-300 mb-4 font-semibold text-sm px-4">
+                        <span class="tracking-widest uppercase"><span class="text-cyan-400">&#128427;</span> Sandisk Arvena</span>
+                        <span>Card ${state.flashcardIndex + 1} / ${flashcardData.length}</span>
+                    </div>
+
+                    <div class="flashcard-scene mb-8" id="flashcard-scene">
+                        <div class="flashcard glass ${flipClass}" id="flashcard">
+                            <div class="flashcard-face flashcard-front rounded-3xl">
+                                <span class="absolute top-4 left-4 text-xs font-bold text-teal-400 uppercase tracking-widest border border-teal-500/30 px-2 py-1 rounded">Question</span>
+                                <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md">${card.front}</h3>
+                                <span class="absolute bottom-4 text-xs text-teal-300/60 animate-pulse">Ketuk untuk membalik</span>
+                            </div>
+                            <div class="flashcard-face flashcard-back rounded-3xl">
+                                <span class="absolute top-4 right-4 text-xs font-bold text-cyan-400 uppercase tracking-widest border border-cyan-500/30 px-2 py-1 rounded">Answer</span>
+                                <p class="text-lg md:text-xl font-medium text-cyan-50 whitespace-pre-line leading-relaxed">${card.back}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full px-4">
+                        <button id="prevFlashBtn" class="px-6 py-2 rounded-full border border-teal-600 text-teal-300 hover:bg-teal-600 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-teal-300" ${state.flashcardIndex === 0 ? 'disabled' : ''}>&larr; Prev</button>
+                        
+                        <button data-view="adventure" class="text-sm font-bold text-teal-500 hover:text-teal-300 transition-colors uppercase tracking-widest">Exit</button>
+
+                        <button id="nextFlashBtn" class="px-6 py-2 rounded-full bg-cyan-700 text-white hover:bg-cyan-600 font-bold transition-colors disabled:opacity-30 disabled:hover:bg-cyan-700" ${state.flashcardIndex === flashcardData.length - 1 ? 'disabled' : ''}>Next &rarr;</button>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // --- EVENT DELEGATION & LISTENERS ---
+        function attachEventListeners() {
+            const container = document.getElementById('app');
+            
+            // View Navigation (data-view attributes)
+            const viewButtons = container.querySelectorAll('[data-view]');
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // prevent flashcard flip if button is inside
+                    setView(btn.getAttribute('data-view'));
+                });
+            });
+
+            // Training Mode Options
+            const trainOpts = container.querySelectorAll('.opt-btn-train');
+            trainOpts.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleTrainingOptionClick(parseInt(btn.getAttribute('data-idx')), btn);
+                });
+            });
+
+            // Training Next Button
+            const nextTrain = document.getElementById('nextTrainBtn');
+            if (nextTrain) {
+                nextTrain.addEventListener('click', () => {
+                    state.quizIndex++;
+                    state.quizAnswered = false;
+                    render();
+                });
+            }
+
+            // War Mode Options
+            const warOpts = container.querySelectorAll('.opt-btn-war');
+            warOpts.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleWarOptionClick(parseInt(btn.getAttribute('data-idx')), btn);
+                });
+            });
+
+            // Flashcard Interaction
+            const flashcardScene = document.getElementById('flashcard-scene');
+            if(flashcardScene) {
+                const flashcard = document.getElementById('flashcard');
+                flashcardScene.addEventListener('click', () => {
+                    state.flashcardFlipped = !state.flashcardFlipped;
+                    flashcard.classList.toggle('is-flipped', state.flashcardFlipped);
+                });
+            }
+            
+            // Flashcard Navigation
+            const prevFlash = document.getElementById('prevFlashBtn');
+            const nextFlash = document.getElementById('nextFlashBtn');
+            
+            if(prevFlash) {
+                prevFlash.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(state.flashcardIndex > 0) {
+                        state.flashcardIndex--;
+                        state.flashcardFlipped = false;
+                        render();
+                    }
+                });
+            }
+            if(nextFlash) {
+                nextFlash.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(state.flashcardIndex < flashcardData.length - 1) {
+                        state.flashcardIndex++;
+                        state.flashcardFlipped = false;
+                        render();
+                    }
+                });
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
+    </script>
+</body>
+</html>
